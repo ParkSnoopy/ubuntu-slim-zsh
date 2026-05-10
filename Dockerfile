@@ -6,10 +6,14 @@ ENV TZ=Etc/UTC
 USER root
 
 RUN \
-	apt update -y			&&\
-	apt install -y sudo zsh tzdata	&&\
-	rm -rf /var/lib/apt/lists/*	&&\
+	apt update -y				&&\
+	apt install -y sudo zsh tzdata locales	&&\
+	locale-gen en_US.UTF-8			&&\
+	rm -rf /var/lib/apt/lists/*		&&\
 	echo 'ubuntu  ALL=(ALL:ALL) NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo
 COPY src/init.sh /root/init.sh
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 ENTRYPOINT ["/usr/bin/zsh"]
