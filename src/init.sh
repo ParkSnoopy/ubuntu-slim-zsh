@@ -12,7 +12,7 @@ sudo sed -i 's|http://|https://|g' /etc/apt/sources.list.d/*
 # basic tools
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y curl wget nano zip unzip git python3 python-is-python3 python3-pip
+sudo apt install -y curl wget nano zip unzip git python3 python-is-python3 python3-pip git-lfs ripgrep jq
 python -m pip install --break-system-packages uv ruff
 
 # oh-my-zsh with daveverwer theme
