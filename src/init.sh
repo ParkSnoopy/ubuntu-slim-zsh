@@ -12,7 +12,17 @@ sudo sed -i 's|http://|https://|g' /etc/apt/sources.list.d/*
 # basic tools
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y curl wget nano zip unzip git python3 python-is-python3 python3-pip git-lfs ripgrep jq
+sudo apt install -y curl wget nano zip unzip git python3 python-is-python3 python3-pip git-lfs ripgrep jq git-delta
+
+git config --global init.defaultBranch main
+git config --global pull.rebase false
+git config --global core.quotePath false
+
+git config --global core.pager delta
+git config --global interactive.diffFilter 'delta --color-only'
+git config --global delta.navigate true
+git config --global merge.conflictStyle zdiff3
+
 python -m pip install --break-system-packages uv ruff
 
 # oh-my-zsh with daveverwer theme

@@ -11,9 +11,8 @@ RUN \
 	locale-gen en_US.UTF-8			&&\
 	rm -rf /var/lib/apt/lists/*		&&\
 	echo 'ubuntu  ALL=(ALL:ALL) NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo
-COPY src/init.sh /root/init.sh
 
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
+COPY src/init.sh /root/init.sh
+COPY src/.zshenv /root/.zshenv
 
 ENTRYPOINT ["/usr/bin/zsh"]
