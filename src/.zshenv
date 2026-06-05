@@ -11,7 +11,6 @@ export UV_LINK_MODE=copy
 
 # Flutter
 #export PATH="$HOME/.flutter/bin:$HOME:$PATH"
-#export TAR_OPTIONS="--no-same-owner"
 
 # Android SDK
 #export ANDROID_HOME="$HOME/.android-tools"
@@ -29,8 +28,11 @@ export NVM_DIR="$HOME/.nvm"
 # Rust
 #source "$HOME/.cargo/env"
 
-# ==========
-# environment
+
+# ====================
+
+# Environment
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+export TAR_OPTIONS="--no-same-owner"
