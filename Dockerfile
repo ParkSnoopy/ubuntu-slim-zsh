@@ -7,7 +7,7 @@ USER root
 
 RUN \
 	apt update -y					&&\
-	apt install -y sudo zsh tzdata locales		&&\
+	apt install -y sudo zsh tmux tzdata locales	&&\
 	locale-gen en_US.UTF-8				&&\
 	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime	&&\
 	echo $TZ > /etc/timezone			&&\
@@ -17,4 +17,4 @@ RUN \
 COPY src/init.sh /root/init.sh
 COPY src/.zshenv /root/.zshenv
 
-ENTRYPOINT ["/usr/bin/zsh"]
+ENTRYPOINT ["/usr/bin/tmux", "-2u"]
