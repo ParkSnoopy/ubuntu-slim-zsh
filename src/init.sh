@@ -16,6 +16,7 @@ sudo sed -i 's|http://|https://|g' /etc/apt/sources.list.d/*
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y man-db curl wget nano zip unzip git python3 python-is-python3 python3-pip git-lfs ripgrep jq git-delta
+curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh
 python -m pip install --break-system-packages uv ruff
 
 # Git Configs
