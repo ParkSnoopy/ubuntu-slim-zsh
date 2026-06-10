@@ -6,15 +6,15 @@ ENV TZ=Asia/Seoul
 USER root
 
 RUN \
-	apt update -y					&&\
-	apt install -y sudo zsh tmux tzdata locales	&&\
-	locale-gen en_US.UTF-8				&&\
-	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime	&&\
-	echo $TZ > /etc/timezone			&&\
-	rm -rf /var/lib/apt/lists/*			&&\
+	apt update -y						&&\
+	apt install -y sudo zsh tmux dumb-init tzdata locales	&&\
+	locale-gen en_US.UTF-8					&&\
+	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime		&&\
+	echo $TZ > /etc/timezone				&&\
+	rm -rf /var/lib/apt/lists/*				&&\
 	echo 'ubuntu  ALL=(ALL:ALL) NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo
 
 COPY src/init.sh /root/init.sh
 COPY src/.zshenv /root/.zshenv
 
-ENTRYPOINT ["/usr/bin/tmux", "-2u"]
+ENTRYPOINT ["/usr/bin/dumb-init", "/usr/bin/tmux", "-2u"]
