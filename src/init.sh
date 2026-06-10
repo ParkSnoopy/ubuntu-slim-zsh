@@ -6,8 +6,8 @@ sudo sed -i 's|http://security.ubuntu.com/ubuntu|http://kr.archive.ubuntu.com/ub
 
 # fetch init script from GitHub
 sudo apt update
-sudo apt install -y curl
-curl https://raw.githubusercontent.com/ParkSnoopy/ubuntu-slim-zsh/refs/heads/main/init.sh | bash
+sudo apt install -y curl ca-certificates
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/ParkSnoopy/ubuntu-slim-zsh/refs/heads/main/init.sh | bash
 
 # remove self
 rm $0
