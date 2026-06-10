@@ -7,7 +7,7 @@ you had to run `zsh` over `bash`, which is exhausting sometimes.
 ## Use
 - Pull the image
 ```bash
-docker pull ghcr.io/parksnoopy/ubuntu-slim-zsh:24.04
+docker pull ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
 ```
 - Run the container
 > [!NOTE]  
@@ -18,6 +18,6 @@ docker pull ghcr.io/parksnoopy/ubuntu-slim-zsh:24.04
 > So initial setup (apt `http`->`https`, install git, python, and basic shell utils)
 > is done manually inside container.  
 ```bash
-docker run -it -u root -w /root ghcr.io/parksnoopy/ubuntu-slim-zsh:24.04
-./init.sh
+docker run -it -u root -w /root ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
+~/init.sh
 ```
