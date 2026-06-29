@@ -32,6 +32,7 @@ export NVM_DIR="$HOME/.nvm"
 # ====================
 
 # Environment
+export TZ=Asia/Seoul
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 

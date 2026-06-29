@@ -1,7 +1,6 @@
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Seoul
 
 USER root
 
@@ -10,7 +9,7 @@ RUN \
 	apt install -y sudo zsh tmux dumb-init tzdata locales	&&\
 	locale-gen en_US.UTF-8					&&\
 	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime		&&\
-	echo $TZ > /etc/timezone				&&\
+	TZ=Asia/Seoul echo $TZ > /etc/timezone			&&\
 	rm -rf /var/lib/apt/lists/*				&&\
 	echo 'ubuntu  ALL=(ALL:ALL) NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo
 
