@@ -1,5 +1,19 @@
 #!/bin/env bash
 
+INSTALL_JS=true
+
+for arg in "$@"; do
+	case "$arg" in
+		--no-js)
+			INSTALL_JS=false
+			;;
+		*)
+			echo "Unknown option: $arg" >&2
+			exit 1
+			;;
+	esac
+done
+
 # Change Repo: 'kr.archive.ubuntu.com/ubuntu'
 sudo sed -i  's|http://archive.ubuntu.com/ubuntu|http://kr.archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/*
 sudo sed -i 's|http://security.ubuntu.com/ubuntu|http://kr.archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/*
@@ -33,14 +47,16 @@ git config --global merge.conflictStyle zdiff3
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 sed -i 's/^ZSH_THEME="robbyrussell"/ZSH_THEME="daveverwer"/g' $HOME/.zshrc
 
-# Bun
-curl -fsSL https://bun.sh/install | bash
+if [ "$INSTALL_JS" = true ]; then
+	# Bun
+	curl -fsSL https://bun.sh/install | bash
 
-# NodeJS
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
-\. "$HOME/.nvm/nvm.sh"
-nvm install 22
-yes | corepack enable pnpm
+	# NodeJS
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+	\. "$HOME/.nvm/nvm.sh"
+	nvm install 22
+	yes | corepack enable pnpm
+fi
 
 # Setup oh-my-tmux
 chsh -s $(which zsh)
