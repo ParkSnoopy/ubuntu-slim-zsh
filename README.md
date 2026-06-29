@@ -22,12 +22,16 @@ Full install with python-uv/git/bun/nodejs
 
 ```bash
 docker run -it -u root -w /root ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
-~/init.sh
 ```
 
-Ignore bun/nodejs install
+Entrypoint as `tmux` instead of `zsh`
 
 ```bash
-docker run -it -u root -w /root ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
-~/init.sh --no-js
+docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/tmux", "-2u"]' ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
+```
+
+## Run initialization script
+
+```bash
+~/init.sh [--no-js]
 ```

@@ -16,4 +16,4 @@ RUN \
 COPY src/init.sh /root/init.sh
 COPY src/.zshenv /root/.zshenv
 
-ENTRYPOINT ["/usr/bin/dumb-init", "/usr/bin/tmux", "-2u"]
+ENTRYPOINT ["/usr/bin/dumb-init", "/usr/bin/zsh"]
