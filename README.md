@@ -12,8 +12,6 @@ docker pull ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
 ```
 ## Run the container
 
-Full install with python-uv/git/bun/nodejs
-
 ```bash
 docker run -it -u root -w /root ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
 ```
@@ -34,6 +32,14 @@ docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/t
 > So initial setup (apt `http`->`https`, install git, python, and basic shell utils)
 > is done manually inside container.  
 
+Full install with python-uv/git/bun/nodejs
+
 ```bash
-~/init.sh [--no-js]
+~/init.sh
+```
+
+Do not install bun/nodejs
+
+```bash
+~/init.sh --no-js
 ```
