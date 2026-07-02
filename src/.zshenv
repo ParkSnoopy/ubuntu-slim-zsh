@@ -10,7 +10,7 @@ export UV_LINK_MODE=copy
 #export CMAKE_ARGS="-DGGML_VULKAN=on"
 
 # Flutter
-#export PATH="$HOME/.flutter/bin:$HOME:$PATH"
+#export PATH="$HOME/.flutter/bin:$PATH"
 
 # Android SDK
 #export ANDROID_HOME="$HOME/.android-tools"
