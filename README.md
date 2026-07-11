@@ -55,3 +55,9 @@ Append extra topics to the default install
 ```bash
 ~/init.sh --include apt-https git-config javascript-nodejs javascript-bun
 ```
+
+Install every available topic without confirmation
+
+```bash
+~/init.sh -y --include '*'
+```

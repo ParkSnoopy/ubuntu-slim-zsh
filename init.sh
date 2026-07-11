@@ -19,13 +19,15 @@ AVAILABLE_TOPICS=(
 DEFAULT_TOPICS=(unminimize packages oh-my-zsh)
 SELECTED_TOPICS=("${DEFAULT_TOPICS[@]}")
 DRY_RUN=false
+ASSUME_YES=false
 
 usage() {
 	cat <<EOF
-Usage: init.sh [--list] [--dry-run] [--include topic ...]
+Usage: init.sh [--list] [--dry-run] [-y] [--include topic ...]
 
 Installs the default topics: unminimize packages oh-my-zsh.
 With --include, appends extra topics in the order given.
+Use --include '*' to append every available topic.
 Duplicated topics are skipped.
 --dry-run previews the core install commands without running them.
 
@@ -63,6 +65,11 @@ is_selected_topic() {
 append_selected_topic() {
 	local topic="$1"
 
+	if [ "$topic" = '*' ]; then
+		append_all_available_topics
+		return 0
+	fi
+
 	if ! is_available_topic "$topic"; then
 		echo "Unknown topic: $topic" >&2
 		exit 1
@@ -73,6 +80,14 @@ append_selected_topic() {
 	fi
 
 	SELECTED_TOPICS+=("$topic")
+}
+
+append_all_available_topics() {
+	local topic
+
+	for topic in "${AVAILABLE_TOPICS[@]}"; do
+		append_selected_topic "$topic"
+	done
 }
 
 preview_topic() {
@@ -133,6 +148,10 @@ while [ "$#" -gt 0 ]; do
 			DRY_RUN=true
 			shift
 			;;
+		-y)
+			ASSUME_YES=true
+			shift
+			;;
 		--include)
 			shift
 			if [ "$#" -eq 0 ] || [[ "$1" == --* ]]; then
@@ -157,6 +176,56 @@ while [ "$#" -gt 0 ]; do
 	esac
 done
 
+confirm_install() {
+	local reply
+
+	echo "Selected topics: ${SELECTED_TOPICS[*]}"
+	printf 'Proceed? [y/N] '
+	if ! read -r reply; then
+		reply=
+	fi
+
+	case "$reply" in
+		y|Y|yes|YES)
+			return 0
+			;;
+		*)
+			echo "Cancelled."
+			exit 0
+			;;
+	esac
+}
+
+run_topic() {
+	local topic="$1"
+	local topic_script
+	local status
+
+	topic_script="$(mktemp "${TMPDIR:-/tmp}/init-topic-$topic.XXXXXX")"
+
+	if ! curl --proto '=https' --tlsv1.2 -sSf "$BASE_URL/init.d/$topic.sh" -o "$topic_script"; then
+		rm -f "$topic_script"
+		return 1
+	fi
+
+	chmod +x "$topic_script"
+
+	if bash "$topic_script"; then
+		status=0
+	else
+		status=$?
+	fi
+
+	rm -f "$topic_script"
+	return "$status"
+}
+
+if [ "$DRY_RUN" = false ] && [ "$ASSUME_YES" = false ]; then
+	confirm_install
+fi
+
+FAILED_TOPICS=()
+
 for topic in "${SELECTED_TOPICS[@]}"; do
 	echo
 	if [ "$DRY_RUN" = true ]; then
@@ -164,9 +233,18 @@ for topic in "${SELECTED_TOPICS[@]}"; do
 		preview_topic "$topic"
 	else
 		echo "==> Installing topic: $topic"
-		curl --proto '=https' --tlsv1.2 -sSf "$BASE_URL/init.d/$topic.sh" | bash
+		if ! run_topic "$topic"; then
+			FAILED_TOPICS+=("$topic")
+			echo "Topic failed: $topic" >&2
+		fi
 	fi
 done
+
+if [ "${#FAILED_TOPICS[@]}" -gt 0 ]; then
+	echo
+	echo "Failed topics: ${FAILED_TOPICS[*]}" >&2
+	exit 1
+fi
 
 if [ "$DRY_RUN" = false ]; then
 	# Post comment
