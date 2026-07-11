@@ -1,13 +1,23 @@
 #!/bin/env bash
+set -euo pipefail
 
-# Change Repo: 'kr.archive.ubuntu.com/ubuntu'
-sudo sed -i  's|http://archive.ubuntu.com/ubuntu|http://kr.archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/*
-sudo sed -i 's|http://security.ubuntu.com/ubuntu|http://kr.archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/*
+INIT_SCRIPT="${TMPDIR:-/tmp}/init.sh"
+INIT_SCRIPT_URL="https://raw.githubusercontent.com/ParkSnoopy/ubuntu-slim-zsh/refs/heads/main/init.sh"
 
-# fetch init script from GitHub
+# Use the plain Ubuntu archive mirror from the packaged container init script.
+sudo sed -i \
+	-e 's|http://security.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' \
+	/etc/apt/sources.list.d/*
+
 sudo apt update
 sudo apt install -y curl ca-certificates
-curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/ParkSnoopy/ubuntu-slim-zsh/refs/heads/main/init.sh | bash -s -- "$@"
 
-# remove self
-rm $0
+if [ ! -s "$INIT_SCRIPT" ]; then
+	curl --proto '=https' --tlsv1.2 -sSf "$INIT_SCRIPT_URL" -o "$INIT_SCRIPT"
+	chmod +x "$INIT_SCRIPT"
+fi
+
+bash "$INIT_SCRIPT" "$@"
+
+# remove self only after the remote script exits successfully
+rm -- "$0"

@@ -25,21 +25,33 @@ docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/t
 ## Run initialization script
 
 > [!NOTE]  
-> [`/root/init.sh`](src/init.sh) is initial environment setup script.
+> [`/root/init.sh`](src/init.sh) is the packaged bootstrap script.
 >   
 > Normally, `zsh` is used with `oh-my-zsh`,
 > but it makes image unnessasarily heavy.
-> So initial setup (apt `http`->`https`, install git, python, and basic shell utils)
-> is done manually inside container.  
+> So initial setup is split into install topics under [`init.d/`](init.d/)
+> and run by the curl-fetched master script.
 
-Full install with python-uv/git/bun/nodejs
+Default install with unminimize, minimal packages, and oh-my-zsh
 
 ```bash
 ~/init.sh
 ```
 
-Do not install bun/nodejs
+Preview the default install
 
 ```bash
-~/init.sh --no-js
+~/init.sh --dry-run
+```
+
+List available install topics
+
+```bash
+~/init.sh --list
+```
+
+Append extra topics to the default install
+
+```bash
+~/init.sh --include apt-https git-config javascript-nodejs javascript-bun
 ```
