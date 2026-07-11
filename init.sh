@@ -9,18 +9,18 @@ CURRENT_COMMIT_HASH="3c4685b"
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
 	BOLD=$'\033[1m'
 	DIM=$'\033[2m'
+	CYAN=$'\033[36m'
 	GREEN=$'\033[32m'
 	YELLOW=$'\033[33m'
 	RED=$'\033[31m'
-	BLUE=$'\033[34m'
 	RESET=$'\033[0m'
 else
 	BOLD=
 	DIM=
+	CYAN=
 	GREEN=
 	YELLOW=
 	RED=
-	BLUE=
 	RESET=
 fi
 
@@ -47,13 +47,13 @@ ASSUME_YES=false
 
 usage() {
 	cat <<EOF
-${BOLD}${BLUE}ubuntu-slim-zsh init${RESET} ${DIM}(${CURRENT_COMMIT_HASH})${RESET}
+${BOLD}${CYAN}ubuntu-slim-zsh init${RESET} ${DIM}(${CURRENT_COMMIT_HASH})${RESET}
 
 ${BOLD}Usage${RESET}
   init.sh [command] [options]
 
 ${BOLD}Commands${RESET}
-  update                         compare commit hash and replace this script if newer
+  update                         compare commit hash and replace ~/init.sh if newer
 
 ${BOLD}Selection${RESET}
   --include topic ...            append topics; use '*' for every available topic
@@ -87,7 +87,7 @@ EOF
 }
 
 say_info() {
-	printf '%b==>%b %s\n' "$BLUE" "$RESET" "$1"
+	printf '%b==>%b %s\n' "$CYAN" "$RESET" "$1"
 }
 
 say_success() {
@@ -107,6 +107,9 @@ self_update() {
 	local latest_hash
 	local latest_short_hash
 	local next_script
+	local target_script
+
+	target_script="${INIT_TARGET_SCRIPT:-$HOME/init.sh}"
 
 	say_info "Checking ${GITHUB_REPOSITORY}@${GITHUB_BRANCH}"
 	latest_json="$(curl --proto '=https' --tlsv1.2 -fsSL "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_BRANCH}")"
@@ -128,8 +131,8 @@ self_update() {
 	trap 'rm -f "$next_script"' RETURN
 	curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/init.sh" -o "$next_script"
 	chmod +x "$next_script"
-	install -m 755 "$next_script" "$0"
-	say_success "Updated $0 to ${latest_short_hash}."
+	install -m 755 "$next_script" "$target_script"
+	say_success "Updated $target_script to ${latest_short_hash}."
 }
 
 is_available_topic() {
