@@ -339,18 +339,14 @@ preview_topic() {
 			printf '%s\n' 'curl -fsSL https://bun.sh/install | bash'
 			;;
 		steamcmd)
-			printf '%s\n' 'read local Unix username for SteamCMD'
+			printf '%s\n' 'use local Unix user steam by default'
 			printf '%s\n' 'reject root as SteamCMD runtime user'
-			printf '%s\n' 'read game server base directory'
-			printf '%s\n' 'read Steam app IDs to install/update'
-			printf '%s\n' 'sudo apt install -y ca-certificates curl tar lib32gcc-s1 lib32stdc++6'
+			printf '%s\n' 'sudo apt install -y ca-certificates curl sudo tar lib32gcc-s1 lib32stdc++6'
 			printf '%s\n' 'sudo useradd -m -s /bin/bash <user>  # if missing'
 			printf '%s\n' 'curl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz -o <tmp-archive>'
 			printf '%s\n' 'sudo -u <user> tar -xzf <tmp-archive> -C /home/<user>/steamcmd'
 			printf '%s\n' 'sudo -u <user> /home/<user>/steamcmd/steamcmd.sh +quit'
-			printf '%s\n' 'sudo ln -sf /home/<user>/steamcmd/steamcmd.sh /usr/local/bin/steamcmd'
-			printf '%s\n' 'sudo -u <user> steamcmd +force_install_dir <base>/<app_id> +login anonymous +app_update <app_id> validate +quit'
-			printf '%s\n' 'write <base>/<app_id>/run.sh that updates/validates before running the server command'
+			printf '%s\n' 'write /usr/local/bin/steamcmd wrapper that runs steamcmd.sh as <user>'
 			;;
 		oh-my-tmux)
 			printf '%s\n' 'sudo apt install -y git zsh'

@@ -74,7 +74,7 @@ Exclude selected topics from defaults and includes
 ~/init.sh --exclude oh-my-zsh
 ```
 
-Install SteamCMD and one or more game servers
+Install SteamCMD and create a `/usr/local/bin/steamcmd` wrapper that runs as the `steam` user
 
 ```bash
 ~/init.sh --include steamcmd
