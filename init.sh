@@ -29,6 +29,7 @@ Installs the default topics: unminimize packages oh-my-zsh.
 With --include, appends extra topics in the order given.
 Use --include '*' to append every available topic.
 Duplicated topics are skipped.
+Topic order is normalized: unminimize, apt-https, packages, then the rest.
 --dry-run previews the core install commands without running them.
 
 Available topics:
@@ -88,6 +89,42 @@ append_all_available_topics() {
 	for topic in "${AVAILABLE_TOPICS[@]}"; do
 		append_selected_topic "$topic"
 	done
+}
+
+append_topic_if_selected() {
+	local topic="$1"
+
+	if is_selected_topic "$topic"; then
+		ORDERED_TOPICS+=("$topic")
+	fi
+}
+
+normalize_topic_order() {
+	local topic
+	local selected_topic
+
+	ORDERED_TOPICS=()
+	append_topic_if_selected unminimize
+	append_topic_if_selected apt-https
+	append_topic_if_selected packages
+
+	for topic in "${SELECTED_TOPICS[@]}"; do
+		case "$topic" in
+			unminimize|apt-https|packages)
+				continue
+				;;
+		esac
+
+		for selected_topic in "${ORDERED_TOPICS[@]}"; do
+			if [ "$topic" = "$selected_topic" ]; then
+				continue 2
+			fi
+		done
+
+		ORDERED_TOPICS+=("$topic")
+	done
+
+	SELECTED_TOPICS=("${ORDERED_TOPICS[@]}")
 }
 
 preview_topic() {
@@ -175,6 +212,8 @@ while [ "$#" -gt 0 ]; do
 			;;
 	esac
 done
+
+normalize_topic_order
 
 confirm_install() {
 	local reply
