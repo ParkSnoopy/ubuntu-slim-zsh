@@ -56,6 +56,12 @@ Append extra topics to the default install
 ~/init.sh --include apt-https git-config javascript-nodejs javascript-bun
 ```
 
+Install SteamCMD and one or more game servers
+
+```bash
+~/init.sh --include steamcmd
+```
+
 Install every available topic without confirmation
 
 ```bash
