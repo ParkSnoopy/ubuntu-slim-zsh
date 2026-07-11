@@ -32,7 +32,7 @@ docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/t
 > So initial setup is split into install topics under [`init.d/`](init.d/)
 > and run by the curl-fetched master script.
 
-Default install with unminimize, minimal packages, and oh-my-zsh
+Default install with unminimize, apt HTTPS support, minimal packages, and oh-my-zsh
 
 ```bash
 ~/init.sh
@@ -50,10 +50,28 @@ List available install topics
 ~/init.sh --list
 ```
 
+Update the installed init script when a newer git commit is available
+
+```bash
+~/init.sh update
+```
+
 Append extra topics to the default install
 
 ```bash
 ~/init.sh --include apt-https git-config javascript-nodejs javascript-bun
+```
+
+Install only selected topics
+
+```bash
+~/init.sh --no-default --include steamcmd
+```
+
+Exclude selected topics from defaults and includes
+
+```bash
+~/init.sh --exclude oh-my-zsh
 ```
 
 Install SteamCMD and one or more game servers
