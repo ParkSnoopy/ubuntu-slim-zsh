@@ -19,5 +19,6 @@ fi
 
 bash "$INIT_SCRIPT" "$@"
 
-# remove self only after the remote script exits successfully
-rm -- "$0"
+# Replace the packaged bootstrap with the downloaded master script only after
+# the master script exits successfully.
+install -m 755 "$INIT_SCRIPT" "$0"
