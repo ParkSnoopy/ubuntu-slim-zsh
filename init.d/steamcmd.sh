@@ -8,7 +8,7 @@ prompt_with_default() {
 	local default_value="$2"
 	local reply
 
-	printf '%s [%s]: ' "$prompt" "$default_value"
+	printf '\n%s [%s]: ' "$prompt" "$default_value" >&2
 	if ! read -r reply; then
 		reply=
 	fi
@@ -85,9 +85,6 @@ RUNNER_EOF
 	rm -f "$runner_tmp"
 }
 
-sudo apt update
-sudo apt install -y ca-certificates curl tar lib32gcc-s1 lib32stdc++6
-
 STEAM_LOCAL_USER="$(prompt_with_default 'Local Unix user for SteamCMD' 'steam')"
 
 if [ "$STEAM_LOCAL_USER" = root ]; then
@@ -104,7 +101,7 @@ USER_GROUP="$(id -gn "$STEAM_LOCAL_USER")"
 STEAMCMD_DIR="$USER_HOME/steamcmd"
 SERVER_BASE_DIR="$(prompt_with_default 'Game server base directory' "$USER_HOME/steam-servers")"
 
-printf 'Steam app IDs to install/update (space-separated): '
+printf '\nSteam app IDs to install/update (space-separated): ' >&2
 if ! read -r STEAM_APP_IDS; then
 	STEAM_APP_IDS=
 fi
@@ -116,6 +113,9 @@ fi
 
 # shellcheck disable=SC2086
 require_numeric_app_ids $STEAM_APP_IDS
+
+sudo apt update
+sudo apt install -y ca-certificates curl tar lib32gcc-s1 lib32stdc++6
 
 ARCHIVE_PATH="$(mktemp "${TMPDIR:-/tmp}/steamcmd.XXXXXX.tar.gz")"
 trap 'rm -f "$ARCHIVE_PATH"' EXIT
