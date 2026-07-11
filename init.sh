@@ -4,7 +4,7 @@ set -euo pipefail
 BASE_URL="${INIT_BASE_URL:-https://raw.githubusercontent.com/ParkSnoopy/ubuntu-slim-zsh/refs/heads/main}"
 GITHUB_REPOSITORY="${INIT_GITHUB_REPOSITORY:-ParkSnoopy/ubuntu-slim-zsh}"
 GITHUB_BRANCH="${INIT_GITHUB_BRANCH:-main}"
-CURRENT_COMMIT_HASH="3c4685b"
+CURRENT_COMMIT_HASH="b1ec88e"
 
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
 	BOLD=$'\033[1m'
@@ -131,6 +131,7 @@ self_update() {
 	trap 'rm -f "$next_script"' RETURN
 	curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/init.sh" -o "$next_script"
 	chmod +x "$next_script"
+	sed -i "s/^CURRENT_COMMIT_HASH=\"[0-9a-f]*\"/CURRENT_COMMIT_HASH=\"$latest_short_hash\"/" "$next_script"
 	install -m 755 "$next_script" "$target_script"
 	say_success "Updated $target_script to ${latest_short_hash}."
 }
