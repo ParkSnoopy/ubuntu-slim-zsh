@@ -1,62 +1,53 @@
 #!/bin/env bash
 set -euo pipefail
 
-NEOFORGE_MAVEN_BASE="https://maven.neoforged.net/releases/net/neoforged/neoforge"
-NEOFORGE_VERSIONS_API="https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml"
-MAX_RAM="${MINECRAFT_MAX_RAM:-6G}"
+MAVEN="https://maven.neoforged.net/releases/net/neoforged/neoforge"
 INSTALL_DIR="${MINECRAFT_INSTALL_DIR:-/apps/minecraft-neoforge}"
+MAX_RAM="${MINECRAFT_MAX_RAM:-6G}"
 
-prompt_with_default() {
-	local prompt="$1"
-	local default_value="$2"
-	local reply
-
-	printf '\n%s [%s]: ' "$prompt" "$default_value" >&2
-	if ! read -r reply; then
-		reply=
-	fi
-
-	if [ -z "$reply" ]; then
-		printf '%s\n' "$default_value"
-	else
-		printf '%s\n' "$reply"
-	fi
+prompt() {
+	local label="$1" default="$2" value
+	printf '\n%s [%s]: ' "$label" "$default" >&2
+	read -r value || true
+	printf '%s\n' "${value:-$default}"
 }
 
-fetch_latest_neoforge_version() {
-	curl --proto '=https' --tlsv1.2 -fsSL "$NEOFORGE_VERSIONS_API" |
-		sed -n 's/.*<version>\([^<]*\)<\/version>.*/\1/p' |
-		grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' |
-		tail -n 1
-}
-
-sudo apt update
-sudo apt install -y curl sed openjdk-25-jre-headless
-
-LATEST_NEOFORGE_VERSION="$(fetch_latest_neoforge_version)"
-
-printf '\nLatest NeoForge version: %s\n' "$LATEST_NEOFORGE_VERSION" >&2
-printf 'Installer URL: %s/%s/neoforge-%s-installer.jar\n\n' \
-	"$NEOFORGE_MAVEN_BASE" "$LATEST_NEOFORGE_VERSION" "$LATEST_NEOFORGE_VERSION" >&2
-
-NEOFORGE_VERSION="$(prompt_with_default 'NeoForge version' "$LATEST_NEOFORGE_VERSION")"
-INSTALL_DIR="$(prompt_with_default 'Install directory' "$INSTALL_DIR")"
-
-INSTALLER_URL="$NEOFORGE_MAVEN_BASE/$NEOFORGE_VERSION/neoforge-$NEOFORGE_VERSION-installer.jar"
-INSTALLER_JAR="neoforge-$NEOFORGE_VERSION-installer.jar"
-
-sudo install -d "$INSTALL_DIR"
-INSTALLER_PATH="$INSTALL_DIR/$INSTALLER_JAR"
-curl --proto '=https' --tlsv1.2 -fsSL "$INSTALLER_URL" -o "$INSTALLER_PATH"
-
-cd "$INSTALL_DIR"
-java -jar "$INSTALLER_JAR" --installServer
-
-# NeoForge bundles its own run.sh; just set max RAM in user_jvm_args.txt
-if [ -f "$INSTALL_DIR/user_jvm_args.txt" ]; then
-	if ! grep -q '^Xmx' "$INSTALL_DIR/user_jvm_args.txt" 2>/dev/null; then
-		printf 'Xmx%s\n' "$MAX_RAM" >> "$INSTALL_DIR/user_jvm_args.txt"
-	fi
+METADATA="$(curl --proto '=https' --tlsv1.2 -fsSL "$MAVEN/maven-metadata.xml")"
+LATEST_NEOFORGE="$(printf '%s\n' "$METADATA" |
+	sed -n 's/.*<version>\([^<]*\)<\/version>.*/\1/p' | tail -n 1)"
+LATEST_MAJOR="${LATEST_NEOFORGE%%.*}"
+LATEST_REMAINDER="${LATEST_NEOFORGE#*.}"
+LATEST_MINOR="${LATEST_REMAINDER%%.*}"
+if [ "$LATEST_MAJOR" -ge 26 ]; then
+	LATEST_MINECRAFT="$LATEST_MAJOR.$LATEST_MINOR"
+else
+	LATEST_MINECRAFT="1.$LATEST_MAJOR.$LATEST_MINOR"
 fi
 
-rm -f "$INSTALL_DIR/run.bat"
+MINECRAFT_VERSION="$(prompt 'Minecraft version' "$LATEST_MINECRAFT")"
+INSTALL_DIR="$(prompt 'Install directory' "$INSTALL_DIR")"
+VERSION_PREFIX="${MINECRAFT_VERSION#1.}"
+NEOFORGE_VERSION="$(printf '%s\n' "$METADATA" |
+	sed -n 's/.*<version>\([^<]*\)<\/version>.*/\1/p' |
+	awk -v prefix="$VERSION_PREFIX." 'index($0, prefix) == 1 {version=$0} END {print version}')"
+
+if [ -z "$NEOFORGE_VERSION" ]; then
+	echo "No NeoForge release found for Minecraft $MINECRAFT_VERSION." >&2
+	exit 1
+fi
+
+sudo apt update
+sudo apt install -y openjdk-25-jdk
+sudo install -d "$INSTALL_DIR"
+cd "$INSTALL_DIR"
+curl --proto '=https' --tlsv1.2 -fsSL \
+	"$MAVEN/$NEOFORGE_VERSION/neoforge-$NEOFORGE_VERSION-installer.jar" \
+	-o neoforge-installer.jar
+java -jar neoforge-installer.jar --installServer
+
+if grep -q '^-Xmx' user_jvm_args.txt; then
+	sed -i "s/^-Xmx.*/-Xmx$MAX_RAM/" user_jvm_args.txt
+else
+	printf '%s\n' "-Xmx$MAX_RAM" >> user_jvm_args.txt
+fi
+rm -f run.bat

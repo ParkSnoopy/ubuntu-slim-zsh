@@ -81,13 +81,13 @@ Install SteamCMD and create a `/usr/local/bin/steamcmd` wrapper that runs as the
 ~/init.sh --include steamcmd
 ```
 
-Install a Minecraft Fabric server (prompts for Minecraft/loader version and install directory)
+Install a Minecraft Fabric server (prompts for Minecraft version and install directory)
 
 ```bash
 ~/init.sh --include minecraft-fabric
 ```
 
-Install a Minecraft NeoForge server (prompts for NeoForge version and install directory)
+Install a Minecraft NeoForge server (prompts for Minecraft version and install directory)
 
 ```bash
 ~/init.sh --include minecraft-neoforge

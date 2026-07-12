@@ -352,23 +352,14 @@ preview_topic() {
 			printf '%s\n' 'write /usr/local/bin/steamcmd wrapper that runs steamcmd.sh as <user>'
 			;;
 		minecraft-fabric)
-			printf '%s\n' 'fetch latest stable Minecraft version from meta.fabricmc.net'
-			printf '%s\n' 'fetch latest Fabric loader version from meta.fabricmc.net'
-			printf '%s\n' 'fetch latest Fabric installer jar URL from meta.fabricmc.net'
-			printf '%s\n' 'ask user for Minecraft version, loader version, and install directory'
-			printf '%s\n' 'sudo apt install -y curl sed openjdk-25-jre-headless'
-			printf '%s\n' 'curl -fsSL <installer-url> -o <dir>/<installer.jar>'
-			printf '%s\n' 'java -jar <installer.jar> server -mcversion <mc> -loader <loader> -dir <dir> -downloadMinecraft'
-			printf '%s\n' 'write <dir>/run.sh with -Xmx6G -jar fabric-server-launch.jar nogui'
+			printf '%s\n' 'prompt: Minecraft version, install directory'
+			printf '%s\n' 'sudo apt install -y openjdk-25-jdk'
+			printf '%s\n' 'download latest compatible Fabric server jar; write run.sh (-Xmx6G)'
 			;;
 		minecraft-neoforge)
-			printf '%s\n' 'fetch latest NeoForge version from maven.neoforged.net'
-			printf '%s\n' 'ask user for NeoForge version and install directory'
-			printf '%s\n' 'sudo apt install -y curl sed openjdk-25-jre-headless'
-			printf '%s\n' 'curl -fsSL <maven-url>/<version>/neoforge-<version>-installer.jar -o <dir>/<installer.jar>'
-			printf '%s\n' 'java -jar <installer.jar> --installServer'
-			printf '%s\n' 'set Xmx6G in user_jvm_args.txt'
-			printf '%s\n' 'rm -f <dir>/run.bat'
+			printf '%s\n' 'prompt: Minecraft version, install directory'
+			printf '%s\n' 'sudo apt install -y openjdk-25-jdk'
+			printf '%s\n' 'install latest compatible NeoForge; set -Xmx6G; remove run.bat'
 			;;
 		oh-my-tmux)
 			printf '%s\n' 'sudo apt install -y git tmux zsh'
