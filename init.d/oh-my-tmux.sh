@@ -2,7 +2,7 @@
 set -euo pipefail
 
 sudo apt update
-sudo apt install -y git zsh
+sudo apt install -y git tmux zsh
 
 # Setup oh-my-tmux
 chsh -s "$(which zsh)"

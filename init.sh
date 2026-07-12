@@ -35,6 +35,8 @@ AVAILABLE_TOPICS=(
 	javascript-nodejs
 	javascript-bun
 	steamcmd
+	minecraft-fabric
+	minecraft-neoforge
 	oh-my-tmux
 )
 
@@ -349,8 +351,27 @@ preview_topic() {
 			printf '%s\n' 'sudo -u <user> /home/<user>/steamcmd/steamcmd.sh +quit'
 			printf '%s\n' 'write /usr/local/bin/steamcmd wrapper that runs steamcmd.sh as <user>'
 			;;
+		minecraft-fabric)
+			printf '%s\n' 'fetch latest stable Minecraft version from meta.fabricmc.net'
+			printf '%s\n' 'fetch latest Fabric loader version from meta.fabricmc.net'
+			printf '%s\n' 'fetch latest Fabric installer jar URL from meta.fabricmc.net'
+			printf '%s\n' 'ask user for Minecraft version, loader version, and install directory'
+			printf '%s\n' 'sudo apt install -y curl sed openjdk-25-jre-headless'
+			printf '%s\n' 'curl -fsSL <installer-url> -o <dir>/<installer.jar>'
+			printf '%s\n' 'java -jar <installer.jar> server -mcversion <mc> -loader <loader> -dir <dir> -downloadMinecraft'
+			printf '%s\n' 'write <dir>/run.sh with -Xmx6G -jar fabric-server-launch.jar nogui'
+			;;
+		minecraft-neoforge)
+			printf '%s\n' 'fetch latest NeoForge version from maven.neoforged.net'
+			printf '%s\n' 'ask user for NeoForge version and install directory'
+			printf '%s\n' 'sudo apt install -y curl sed openjdk-25-jre-headless'
+			printf '%s\n' 'curl -fsSL <maven-url>/<version>/neoforge-<version>-installer.jar -o <dir>/<installer.jar>'
+			printf '%s\n' 'java -jar <installer.jar> --installServer'
+			printf '%s\n' 'set Xmx6G in user_jvm_args.txt'
+			printf '%s\n' 'rm -f <dir>/run.bat'
+			;;
 		oh-my-tmux)
-			printf '%s\n' 'sudo apt install -y git zsh'
+			printf '%s\n' 'sudo apt install -y git tmux zsh'
 			printf '%s\n' 'git clone --single-branch https://github.com/gpakosz/.tmux.git'
 			;;
 	esac

@@ -25,12 +25,13 @@ docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/t
 ## Run initialization script
 
 > [!NOTE]  
-> [`/root/init.sh`](src/init.sh) is the packaged bootstrap script.
+> [`/root/init.sh`](src/init.sh) is the packaged bootstrap script.  
 >   
-> Normally, `zsh` is used with `oh-my-zsh`,
-> but it makes image unnessasarily heavy.
-> So initial setup is split into install topics under [`init.d/`](init.d/)
-> and run by the curl-fetched master script.
+> Normally, `zsh` is used with `oh-my-zsh`,  
+> but it makes image unnessasarily heavy.  
+>   
+> So initial setup is split into install topics under [`init.d/`](init.d/)  
+> and run by the curl-fetched master script.  
 
 Default install with unminimize, apt HTTPS support, minimal packages, and oh-my-zsh
 
@@ -78,6 +79,18 @@ Install SteamCMD and create a `/usr/local/bin/steamcmd` wrapper that runs as the
 
 ```bash
 ~/init.sh --include steamcmd
+```
+
+Install a Minecraft Fabric server (prompts for Minecraft/loader version and install directory)
+
+```bash
+~/init.sh --include minecraft-fabric
+```
+
+Install a Minecraft NeoForge server (prompts for NeoForge version and install directory)
+
+```bash
+~/init.sh --include minecraft-neoforge
 ```
 
 Install every available topic without confirmation
