@@ -313,6 +313,7 @@ preview_topic() {
 			;;
 		apt-https)
 			printf '%s\n' 'sudo apt install -y ca-certificates apt-transport-https'
+			printf '%s\n' "sudo sed -i 's|http://|https://|g' /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources"
 			;;
 		packages)
 			printf '%s\n' 'sudo apt install -y man-db curl wget nano zip unzip git tree'
