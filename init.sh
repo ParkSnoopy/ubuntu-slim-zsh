@@ -89,7 +89,7 @@ EOF
 }
 
 say_info() {
-	printf '%b==>%b %s\n' "$CYAN" "$RESET" "$1"
+	printf '\n%b==>%b %s\n' "$CYAN" "$RESET" "$1"
 }
 
 say_success() {
@@ -498,7 +498,6 @@ if [ "${#SELECTED_TOPICS[@]}" -gt 0 ]; then
 fi
 
 for topic in "${SELECTED_TOPICS[@]}"; do
-	echo
 	if [ "$DRY_RUN" = true ]; then
 		say_info "Preview topic: $topic"
 		preview_topic "$topic"
