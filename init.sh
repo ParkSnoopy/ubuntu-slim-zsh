@@ -485,6 +485,16 @@ fi
 
 FAILED_TOPICS=()
 
+if [ "${#SELECTED_TOPICS[@]}" -gt 0 ]; then
+	if [ "$DRY_RUN" = true ]; then
+		say_info "Preview package index update"
+		printf '%s\n' 'sudo apt update'
+	else
+		say_info "Updating package index"
+		sudo apt update
+	fi
+fi
+
 for topic in "${SELECTED_TOPICS[@]}"; do
 	echo
 	if [ "$DRY_RUN" = true ]; then

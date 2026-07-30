@@ -10,7 +10,6 @@ if [ "$STEAM_LOCAL_USER" = root ]; then
 	exit 1
 fi
 
-sudo apt update
 sudo apt install -y ca-certificates curl sudo tar lib32gcc-s1 lib32stdc++6
 
 if ! id "$STEAM_LOCAL_USER" >/dev/null 2>&1; then

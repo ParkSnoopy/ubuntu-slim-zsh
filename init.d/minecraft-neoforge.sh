@@ -36,7 +36,6 @@ if [ -z "$NEOFORGE_VERSION" ]; then
 	exit 1
 fi
 
-sudo apt update
 sudo apt install -y openjdk-25-jdk
 sudo install -d "$INSTALL_DIR"
 cd "$INSTALL_DIR"

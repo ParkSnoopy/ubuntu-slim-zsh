@@ -1,7 +1,6 @@
 #!/bin/env bash
 set -euo pipefail
 
-sudo apt update
 sudo apt install -y ca-certificates apt-transport-https
 
 source_lists=(
@@ -14,5 +13,3 @@ for source_list in "${source_lists[@]}"; do
 	[[ -f "$source_list" ]] || continue
 	sudo sed -i 's|http://|https://|g' "$source_list"
 done
-
-sudo apt update

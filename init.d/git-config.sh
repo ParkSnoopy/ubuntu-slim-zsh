@@ -2,7 +2,6 @@
 set -euo pipefail
 
 # Git Configs
-sudo apt update
 sudo apt install -y git git-delta
 
 git config --global init.defaultBranch main
