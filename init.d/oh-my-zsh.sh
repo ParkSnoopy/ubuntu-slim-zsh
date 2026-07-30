@@ -1,7 +1,7 @@
 #!/bin/env bash
 set -euo pipefail
 
-sudo apt install -y curl zsh
+sudo apt install -y curl git zsh
 
 # oh-my-zsh with 'daveverwer' theme
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended

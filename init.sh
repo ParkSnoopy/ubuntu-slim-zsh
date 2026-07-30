@@ -330,7 +330,7 @@ preview_topic() {
 			printf '%s\n' 'python -m pip install --break-system-packages uv ruff'
 			;;
 		oh-my-zsh)
-			printf '%s\n' 'sudo apt install -y curl zsh'
+			printf '%s\n' 'sudo apt install -y curl git zsh'
 			printf '%s\n' 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
 			;;
 		javascript-nodejs)
