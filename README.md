@@ -57,19 +57,13 @@ Update the installed init script when a newer git commit is available
 ~/init.sh update
 ```
 
-Append extra topics to the default install
-
-```bash
-~/init.sh --include apt-https git-config javascript-nodejs javascript-bun
-```
-
 Install only selected topics
 
 ```bash
-~/init.sh --no-default --include steamcmd
+~/init.sh install oh-my-tmux python-uv
 ```
 
-Exclude selected topics from defaults and includes
+Exclude a topic from the default install
 
 ```bash
 ~/init.sh --exclude oh-my-zsh
@@ -78,23 +72,23 @@ Exclude selected topics from defaults and includes
 Install SteamCMD and create a `/usr/local/bin/steamcmd` wrapper that runs as the `steam` user
 
 ```bash
-~/init.sh --include steamcmd
+~/init.sh install steamcmd
 ```
 
 Install a Minecraft Fabric server (prompts for Minecraft version and install directory)
 
 ```bash
-~/init.sh --include minecraft-fabric
+~/init.sh install minecraft-fabric
 ```
 
 Install a Minecraft NeoForge server (prompts for Minecraft version and install directory)
 
 ```bash
-~/init.sh --include minecraft-neoforge
+~/init.sh install minecraft-neoforge
 ```
 
 Install every available topic without confirmation
 
 ```bash
-~/init.sh -y --include '*'
+~/init.sh install '*' -y
 ```

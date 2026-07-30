@@ -43,7 +43,7 @@ AVAILABLE_TOPICS=(
 DEFAULT_TOPICS=(unminimize apt-https packages oh-my-zsh)
 SELECTED_TOPICS=()
 EXCLUDED_TOPICS=()
-DEFAULT_ENABLED=true
+INSTALL_COMMAND=false
 DRY_RUN=false
 ASSUME_YES=false
 
@@ -52,15 +52,15 @@ usage() {
 ${BOLD}${CYAN}ubuntu-slim-zsh init${RESET} ${DIM}(${CURRENT_COMMIT_HASH})${RESET}
 
 ${BOLD}Usage${RESET}
-  init.sh [command] [options]
+  init.sh [options]
+  init.sh install topic ... [options]
 
 ${BOLD}Commands${RESET}
+  install topic ...              install only selected topics; use '*' for all
   update                         compare commit hash and replace ~/init.sh if newer
 
 ${BOLD}Selection${RESET}
-  --include topic ...            append topics; use '*' for every available topic
-  --exclude topic ...            remove topics after default/include selection
-  --no-default                   install only explicitly included topics
+  --exclude topic ...            remove topics after selection
 
 ${BOLD}Run control${RESET}
   --dry-run                      preview core install commands only
@@ -75,9 +75,9 @@ ${BOLD}Topic order${RESET}
   unminimize → apt-https → packages → rest
 
 ${BOLD}Examples${RESET}
-  init.sh --include git-config javascript-bun
-  init.sh --no-default --include steamcmd
-  init.sh --include '*' --exclude oh-my-zsh
+  init.sh install git-config javascript-bun
+  init.sh install steamcmd
+  init.sh install '*' --exclude oh-my-zsh
   init.sh update
 
 ${BOLD}Topics${RESET}
@@ -288,7 +288,7 @@ remove_excluded_topics() {
 apply_default_topics() {
 	local topic
 
-	if [ "$DEFAULT_ENABLED" = false ]; then
+	if [ "$INSTALL_COMMAND" = true ]; then
 		return 0
 	fi
 
@@ -371,6 +371,24 @@ preview_topic() {
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
+		install)
+			if [ "$INSTALL_COMMAND" = true ]; then
+				say_error "install may only be specified once"
+				exit 1
+			fi
+
+			INSTALL_COMMAND=true
+			shift
+			if [ "$#" -eq 0 ] || [[ "$1" == -* ]]; then
+				say_error "install requires at least one topic"
+				exit 1
+			fi
+
+			while [ "$#" -gt 0 ] && [[ "$1" != -* ]]; do
+				append_selected_topic "$1"
+				shift
+			done
+			;;
 		update)
 			self_update
 			exit 0
@@ -391,22 +409,6 @@ while [ "$#" -gt 0 ]; do
 			ASSUME_YES=true
 			shift
 			;;
-		--no-default)
-			DEFAULT_ENABLED=false
-			shift
-			;;
-		--include)
-			shift
-			if [ "$#" -eq 0 ] || [[ "$1" == --* ]]; then
-				say_error "--include requires at least one topic"
-				exit 1
-			fi
-
-			while [ "$#" -gt 0 ] && [[ "$1" != --* ]]; do
-				append_selected_topic "$1"
-				shift
-			done
-			;;
 		--exclude)
 			shift
 			if [ "$#" -eq 0 ] || [[ "$1" == --* ]]; then
@@ -425,7 +427,7 @@ while [ "$#" -gt 0 ]; do
 			;;
 		*)
 			say_error "Unexpected argument: $1"
-			say_warn "Use --include to select topics."
+			say_warn "Use install to select topics."
 			exit 1
 			;;
 	esac
