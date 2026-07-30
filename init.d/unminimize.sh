@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # This container is for isolated OS.
-# Avoid `yes | ...` under pipefail: yes exits with SIGPIPE after unminimize
-# finishes, which can make a successful unminimize look failed.
-if sudo unminimize <<'EOF'
-y
-EOF
-then
+# unminimize can prompt more than once. Disable pipefail only inside this
+# subshell so yes exiting with SIGPIPE does not hide unminimize's result.
+if (
+	set +o pipefail
+	yes | sudo unminimize
+); then
 	exit 0
 fi
 

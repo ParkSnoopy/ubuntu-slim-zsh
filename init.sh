@@ -309,7 +309,7 @@ preview_topic() {
 
 	case "$topic" in
 		unminimize)
-			printf '%s\n' 'printf y | sudo unminimize'
+			printf '%s\n' 'yes | sudo unminimize'
 			;;
 		apt-https)
 			printf '%s\n' 'sudo apt install -y ca-certificates apt-transport-https'
