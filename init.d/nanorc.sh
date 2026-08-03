@@ -1,6 +1,6 @@
 #!/bin/env bash
 set -euo pipefail
 
-sudo apt install -y curl
+sudo apt install -y curl unzip
 
 curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh
