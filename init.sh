@@ -322,7 +322,7 @@ preview_topic() {
 			printf '%s\n' 'sudo apt install -y git git-delta'
 			;;
 		nanorc)
-			printf '%s\n' 'sudo apt install -y curl unzip'
+			printf '%s\n' 'sudo apt install -y curl unzip wget'
 			printf '%s\n' 'curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh'
 			;;
 		python-uv)
