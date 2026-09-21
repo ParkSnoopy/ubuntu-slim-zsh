@@ -137,6 +137,9 @@ self_update() {
 	chmod +x "$next_script"
 	sed -i "s/^CURRENT_COMMIT_HASH=\"[0-9a-f]*\"/CURRENT_COMMIT_HASH=\"$latest_short_hash\"/" "$next_script"
 	install -m 755 "$next_script" "$target_script"
+	if [ -d /usr/local/share/zsh/site-functions ] && [ -w /usr/local/share/zsh/site-functions ]; then
+		curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/src/_init.sh" -o /usr/local/share/zsh/site-functions/_init.sh 2>/dev/null || true
+	fi
 	say_success "Updated $target_script to ${latest_short_hash}."
 }
 

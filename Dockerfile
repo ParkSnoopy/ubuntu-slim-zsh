@@ -15,5 +15,6 @@ RUN \
 
 COPY src/init.sh /root/init.sh
 COPY src/.zshenv /root/.zshenv
+COPY src/_init.sh /usr/local/share/zsh/site-functions/_init.sh
 
 ENTRYPOINT ["/usr/bin/dumb-init", "/usr/bin/zsh"]
