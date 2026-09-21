@@ -28,6 +28,11 @@
 
 # ====================
 
+# Open GUI App from Podman
+#export GDK_BACKEND="wayland"
+#export XDG_RUNTIME_DIR="/tmp"
+#export WAYLAND_DISPLAY="wayland-0"
+
 # Environment
 export TZ="Asia/Shanghai"
 export LANG="en_US.UTF-8"
