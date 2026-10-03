@@ -1,6 +1,5 @@
 #!/bin/env bash
 set -euo pipefail
 
-sudo apt install -y python3 python-is-python3 python3-pip
-
-python -m pip install --break-system-packages uv ruff
+. "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
+nix_install python3 uv ruff

@@ -1,4 +1,5 @@
 #!/bin/env bash
 set -euo pipefail
 
-sudo apt install -y golang
+. "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
+nix_install go

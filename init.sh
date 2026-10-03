@@ -373,50 +373,41 @@ preview_topic() {
 			printf '%s\n' 'sudo apt update'
 			;;
 		packages)
-			printf '%s\n' 'sudo apt install -y man-db curl wget nano zip unzip git tree gh jq ripgrep moreutils'
+			echo 'nix_install man-db curl wget nano zip unzip git tree gh jq ripgrep moreutils'
 			;;
 		git-config)
-			printf '%s\n' 'sudo apt install -y git git-delta git-lfs'
+			echo 'nix_install git delta git-lfs'
 			printf '%s\n' 'git config --global diff.lfs.textconv cat'
 			;;
 		nanorc)
-			printf '%s\n' 'sudo apt install -y curl unzip wget'
-			printf '%s\n' 'curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh'
+			echo 'nix_install nano nanorc'
+			echo 'include pinned syntax files in ~/.nanorc'
 			;;
 		python-uv)
-			printf '%s\n' 'sudo apt install -y python3 python-is-python3 python3-pip'
-			printf '%s\n' 'python -m pip install --break-system-packages uv ruff'
+			echo 'nix_install python3 uv ruff'
 			;;
 		tldr)
-			printf '%s\n' 'sudo apt install -y python3 python3-pip'
-			printf '%s\n' 'python3 -m pip install --break-system-packages tldr'
+			echo 'nix_install tldr'
 			;;
 		xtradeb)
 			printf '%s\n' 'sudo apt install -y software-properties-common'
 			printf '%s\n' 'sudo add-apt-repository -y ppa:xtradeb/apps'
 			;;
 		omz)
-			printf '%s\n' 'sudo apt install -y curl git zsh'
-			printf '%s\n' 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
+			echo 'nix_install git zsh oh-my-zsh'
+			echo 'create ~/.zshrc from pinned template only if absent'
 			;;
 		js-node-22)
-			printf '%s\n' 'sudo apt install -y curl'
-			printf '%s\n' 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash'
-			printf '%s\n' 'nvm install 22'
-			printf '%s\n' 'yes | corepack enable pnpm'
+			echo 'nix_install nodejs_22 pnpm'
 			;;
 		js-node-24)
-			printf '%s\n' 'sudo apt install -y curl'
-			printf '%s\n' 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash'
-			printf '%s\n' 'nvm install 24'
-			printf '%s\n' 'yes | corepack enable pnpm'
+			echo 'nix_install nodejs_24 pnpm'
 			;;
 		js-bun)
-			printf '%s\n' 'sudo apt install -y curl unzip'
-			printf '%s\n' 'curl -fsSL https://bun.sh/install | bash'
+			echo 'nix_install bun'
 			;;
 		golang)
-			printf '%s\n' 'sudo apt install -y golang'
+			echo 'nix_install go'
 			;;
 		steamcmd)
 			printf '%s\n' 'use local Unix user steam by default'
@@ -429,18 +420,20 @@ preview_topic() {
 			printf '%s\n' 'write /usr/local/bin/steamcmd wrapper that runs steamcmd.sh as <user>'
 			;;
 		minecraft-fabric)
+			echo 'nix_install curl jdk25'
 			printf '%s\n' 'prompt: Minecraft version, install directory'
-			printf '%s\n' 'sudo apt install -y curl openjdk-25-jdk'
 			printf '%s\n' 'download latest compatible Fabric server jar; write run.sh (-Xmx6G)'
 			;;
 		minecraft-neoforge)
+			echo 'nix_install curl jdk25'
 			printf '%s\n' 'prompt: Minecraft version, install directory'
-			printf '%s\n' 'sudo apt install -y curl openjdk-25-jdk'
 			printf '%s\n' 'install latest compatible NeoForge; set -Xmx6G; remove run.bat'
 			;;
 		omt)
-			printf '%s\n' 'sudo apt install -y git gnu-which tmux zsh'
-			printf '%s\n' 'git clone --single-branch https://github.com/gpakosz/.tmux.git'
+			echo 'sudo apt install -y zsh'
+			echo 'nix_install git which tmux'
+			echo 'git clone --no-checkout --single-branch https://github.com/gpakosz/.tmux.git'
+			echo 'git -C ~/.tmux checkout 58a3dcc0d718ec0fa1c0d5a2fddd640a1ad7a5b7'
 			;;
 	esac
 }
@@ -584,13 +577,39 @@ fi
 
 FAILED_TOPICS=()
 
-if [ "${#SELECTED_TOPICS[@]}" -gt 0 ]; then
+NEEDS_APT=false
+NEEDS_NIX=false
+for topic in "${SELECTED_TOPICS[@]}"; do
+	case "$topic" in
+		unminimize|apt-https|xtradeb|steamcmd) NEEDS_APT=true ;;
+		omt) NEEDS_APT=true; NEEDS_NIX=true ;;
+		*) NEEDS_NIX=true ;;
+	esac
+done
+
+if [ "$NEEDS_APT" = true ]; then
 	if [ "$DRY_RUN" = true ]; then
 		say_info "Preview package index update"
 		printf '%s\n' 'sudo apt update'
 	else
 		say_info "Updating package index"
 		sudo apt update
+	fi
+fi
+
+if [ "$NEEDS_NIX" = true ]; then
+	if [ "$DRY_RUN" = true ]; then
+		say_info 'Preview Nix setup (pinned installer and Nixpkgs)'
+		echo 'source shared init.d/_nix.sh; ensure_nix'
+	else
+		if [ -z "${INIT_NIX_HELPER:-}" ]; then
+			INIT_NIX_HELPER="$(mktemp "${TMPDIR:-/tmp}/init-nix.XXXXXX")"
+			trap 'rm -f "$INIT_NIX_HELPER"' EXIT
+			curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/init.d/_nix.sh" -o "$INIT_NIX_HELPER"
+		fi
+		export INIT_NIX_HELPER
+		. "$INIT_NIX_HELPER"
+		ensure_nix
 	fi
 fi
 

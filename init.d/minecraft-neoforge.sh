@@ -2,6 +2,8 @@
 set -euo pipefail
 
 MAVEN="https://maven.neoforged.net/releases/net/neoforged/neoforge"
+. "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
+nix_install curl jdk25
 INSTALL_DIR="${MINECRAFT_INSTALL_DIR:-/apps/minecraft-neoforge}"
 MAX_RAM="${MINECRAFT_MAX_RAM:-6G}"
 
@@ -36,7 +38,6 @@ if [ -z "$NEOFORGE_VERSION" ]; then
 	exit 1
 fi
 
-sudo apt install -y curl openjdk-25-jdk
 sudo install -d "$INSTALL_DIR"
 cd "$INSTALL_DIR"
 curl --proto '=https' --tlsv1.2 -fsSL \

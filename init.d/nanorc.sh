@@ -1,6 +1,10 @@
 #!/bin/env bash
 set -euo pipefail
 
-sudo apt install -y curl unzip wget
+. "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
+nix_install nano nanorc
 
-curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh
+INCLUDE="include \"$HOME/.nix-profile/share/*.nanorc\""
+if ! grep -Fxq "$INCLUDE" "$HOME/.nanorc" 2>/dev/null; then
+	echo "$INCLUDE" >> "$HOME/.nanorc"
+fi

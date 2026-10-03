@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # Git Configs
-sudo apt install -y git git-delta git-lfs
+. "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
+nix_install git delta git-lfs
 
 git config --global init.defaultBranch main
 git config --global pull.rebase false

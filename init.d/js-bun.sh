@@ -1,7 +1,5 @@
 #!/bin/env bash
 set -euo pipefail
 
-sudo apt install -y curl unzip
-
-# Bun
-curl -fsSL https://bun.sh/install | bash
+. "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
+nix_install bun

@@ -33,6 +33,23 @@ docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/t
 > So initial setup is split into install topics under [`init.d/`](init.d/)  
 > and run by the curl-fetched master script.  
 
+Tool topics use the single-user Nix profile at `~/.nix-profile`. The shared
+[`init.d/_nix.sh`](init.d/_nix.sh) pins Nixpkgs to an immutable commit and verifies
+the version-pinned Nix installer before execution. Topic scripts source this
+helper locally or through the coordinator's `INIT_NIX_HELPER` path. No channel
+update or unpinned NVM, pip, or Bun installer is used for these tools.
+
+Ubuntu image prerequisites, `unminimize`, `apt-https`, `xtradeb`, SteamCMD's
+native 32-bit dependencies, and the registered login shell remain APT-managed.
+Minecraft loader downloads and SteamCMD's self-updates remain upstream-managed;
+the complete deployment is not fully reproducible. Existing shell configurations
+and old tool installations are not automatically migrated. Node topics share one
+profile; the last selected Node variant becomes active. The packaged `.zshenv`
+loads the Nix profile.
+
+`bash tests/init.sh` exercises topic dispatch, offline previews, scoped help,
+shared helper reuse, and installation failures with isolated command doubles.
+
 Default install with unminimize, apt HTTPS support, minimal packages, and omz
 
 ```bash

@@ -12,19 +12,22 @@
 #export ANDROID_SDK_ROOT="$ANDROID_HOME"
 #export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 
-# Bun
-#export BUN_INSTALL="$HOME/.bun"
-#export PATH="$BUN_INSTALL/bin:$PATH"
-
-# NodeJS
-#export NVM_DIR="$HOME/.nvm"
-#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# Nix tools are installed in the current user's profile.
+if [ -r "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+	. "$HOME/.nix-profile/etc/profile.d/nix.sh"
+elif [ -r /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+	. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+fi
+if [ -d "$HOME/.nix-profile/bin" ]; then
+	export PATH="$HOME/.nix-profile/bin:$PATH"
+	if [ "$EUID" -eq 0 ] && ! getent group nixbld >/dev/null; then
+		export NIX_CONFIG="${NIX_CONFIG:-}
+build-users-group ="
+	fi
+fi
 
 # Rust
 #source "$HOME/.cargo/env"
-
-# GoLang
-#export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"
 
 # ====================
 

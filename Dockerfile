@@ -6,7 +6,7 @@ USER root
 
 RUN \
 	apt update -y						&&\
-	apt install -y sudo zsh tmux dumb-init tzdata locales	&&\
+	apt install -y sudo zsh tmux dumb-init tzdata locales curl ca-certificates xz-utils	&&\
 	locale-gen en_US.UTF-8					&&\
 	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime		&&\
 	TZ=Asia/Seoul echo $TZ > /etc/timezone			&&\

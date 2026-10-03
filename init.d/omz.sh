@@ -1,8 +1,14 @@
 #!/bin/env bash
 set -euo pipefail
 
-sudo apt install -y curl git zsh
+. "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
+nix_install git zsh oh-my-zsh
 
-# oh-my-zsh with 'daveverwer' theme
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-sed -i 's/^ZSH_THEME="robbyrussell"/ZSH_THEME="daveverwer"/g' "$HOME/.zshrc"
+# Preserve existing shell settings. New configurations use the pinned package.
+if [ ! -e "$HOME/.zshrc" ]; then
+	cp "$HOME/.nix-profile/share/oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"
+	sed -i \
+		-e 's|^export ZSH=.*|export ZSH="$HOME/.nix-profile/share/oh-my-zsh"|' \
+		-e 's/^ZSH_THEME="robbyrussell"/ZSH_THEME="daveverwer"/' \
+		"$HOME/.zshrc"
+fi
