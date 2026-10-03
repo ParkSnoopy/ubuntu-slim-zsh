@@ -2,7 +2,7 @@
 set -euo pipefail
 
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install git zsh oh-my-zsh
+nix-env --file "$NIXPKGS_URL" --install --attr git zsh oh-my-zsh
 
 # Preserve existing shell settings. New configurations use the pinned package.
 if [ ! -e "$HOME/.zshrc" ]; then

@@ -35,9 +35,12 @@ docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/t
 
 Tool topics use the single-user Nix profile at `~/.nix-profile`. The shared
 [`init.d/_nix.sh`](init.d/_nix.sh) pins Nixpkgs to an immutable commit and verifies
-the version-pinned Nix installer before execution. Topic scripts source this
-helper locally or through the coordinator's `INIT_NIX_HELPER` path. No channel
-update or unpinned NVM, pip, or Bun installer is used for these tools.
+the version-pinned Nix installer before execution. This is a flat setup script,
+without command-wrapper functions. Topic scripts source it locally or through
+the coordinator's `INIT_NIX_HELPER` path, then run
+`nix-env --file "$NIXPKGS_URL" --install --attr ...` directly. Dry-run previews
+show the same commands. No channel update or unpinned NVM, pip, or Bun installer
+is used for these tools.
 
 Ubuntu image prerequisites, `unminimize`, `apt-https`, `xtradeb`, SteamCMD's
 native 32-bit dependencies, and the registered login shell remain APT-managed.

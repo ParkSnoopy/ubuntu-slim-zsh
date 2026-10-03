@@ -4,7 +4,7 @@ set -euo pipefail
 # The login shell must be registered by Ubuntu, not a user-profile symlink.
 sudo apt install -y zsh
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install git which tmux
+nix-env --file "$NIXPKGS_URL" --install --attr git which tmux
 
 # Setup oh-my-tmux
 chsh -s /usr/bin/zsh

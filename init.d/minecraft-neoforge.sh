@@ -3,7 +3,7 @@ set -euo pipefail
 
 MAVEN="https://maven.neoforged.net/releases/net/neoforged/neoforge"
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install curl jdk25
+nix-env --file "$NIXPKGS_URL" --install --attr curl jdk25
 INSTALL_DIR="${MINECRAFT_INSTALL_DIR:-/apps/minecraft-neoforge}"
 MAX_RAM="${MINECRAFT_MAX_RAM:-6G}"
 

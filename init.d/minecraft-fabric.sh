@@ -3,7 +3,7 @@ set -euo pipefail
 
 META="https://meta.fabricmc.net/v2/versions"
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install curl jdk25
+nix-env --file "$NIXPKGS_URL" --install --attr curl jdk25
 INSTALL_DIR="${MINECRAFT_INSTALL_DIR:-/apps/minecraft-fabric}"
 MAX_RAM="${MINECRAFT_MAX_RAM:-6G}"
 

@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Git Configs
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install git delta git-lfs
+nix-env --file "$NIXPKGS_URL" --install --attr git delta git-lfs
 
 git config --global init.defaultBranch main
 git config --global pull.rebase false

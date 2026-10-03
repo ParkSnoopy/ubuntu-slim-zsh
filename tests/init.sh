@@ -6,8 +6,6 @@ TEST_DIR="$(mktemp -d "${TMPDIR:-/tmp}/init-test.XXXXXX")"
 trap 'rm -rf "$TEST_DIR"' EXIT
 export ROOT HOME="$TEST_DIR/home" LOG="$TEST_DIR/commands"
 mkdir -p "$HOME"
-. "$ROOT/init.d/_nix.sh"
-[[ "$NIXPKGS_URL" =~ /[0-9a-f]{40}\.tar\.gz$ ]]
 
 # These doubles exercise dispatch and failure propagation, not package builds.
 curl() {
@@ -46,13 +44,17 @@ help="$(bash "$ROOT/init.sh" install golang --help)"
 [[ "$help" == *'init.sh install'* ]]
 
 preview="$(bash "$ROOT/init.sh" install golang js-node-22 --dry-run)"
-[[ "$preview" == *'nix_install go'*'nix_install nodejs_22 pnpm'* ]]
+[[ "$preview" == *'nix-env --file "$NIXPKGS_URL" --install --attr go'*'nix-env --file "$NIXPKGS_URL" --install --attr nodejs_22 pnpm'* ]]
 [[ "$preview" != *'sudo apt update'* ]]
-[[ "${preview#*ensure_nix}" != *'ensure_nix'* ]]
+[[ "${preview#*'. init.d/_nix.sh'}" != *'. init.d/_nix.sh'* ]]
 preview="$(bash "$ROOT/init.sh" install xtradeb golang --dry-run)"
-[[ "$preview" == *'sudo apt update'*'ensure_nix'* ]]
+[[ "$preview" == *'sudo apt update'*'. init.d/_nix.sh'* ]]
 preview="$(bash "$ROOT/init.sh" install '*' --exclude '*' --dry-run)"
-[[ "$preview" != *'sudo apt update'* && "$preview" != *'ensure_nix'* ]]
+[[ "$preview" != *'sudo apt update'* && "$preview" != *'. init.d/_nix.sh'* ]]
+
+. "$ROOT/init.d/_nix.sh"
+[[ "$NIXPKGS_URL" =~ /[0-9a-f]{40}\.tar\.gz$ ]]
+rm -f "$LOG"
 
 bash "$ROOT/init.sh" install golang js-node-22 js-node-24 -y
 helper_downloads=0
@@ -92,6 +94,12 @@ fi
 bash "$ROOT/init.sh" --list | while IFS= read -r topic; do
 	test -f "$ROOT/init.d/$topic.sh"
 	bash -n "$ROOT/init.d/$topic.sh"
+	preview="$(bash "$ROOT/init.sh" install "$topic" --dry-run)"
+	while IFS= read -r command; do
+		case "$command" in
+			'nix-env --file '*) [[ "$preview" == *"$command"* ]] ;;
+		esac
+	done < "$ROOT/init.d/$topic.sh"
 done
 for script in "$ROOT/init.sh" "$ROOT/src/init.sh" "$ROOT/init.d/_nix.sh"; do
 	bash -n "$script"

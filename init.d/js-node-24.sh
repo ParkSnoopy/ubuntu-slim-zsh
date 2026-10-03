@@ -2,4 +2,4 @@
 set -euo pipefail
 
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install nodejs_24 pnpm
+nix-env --file "$NIXPKGS_URL" --install --attr nodejs_24 pnpm

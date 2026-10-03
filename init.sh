@@ -373,41 +373,41 @@ preview_topic() {
 			printf '%s\n' 'sudo apt update'
 			;;
 		packages)
-			echo 'nix_install man-db curl wget nano zip unzip git tree gh jq ripgrep moreutils'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr man-db curl wget nano zip unzip git tree gh jq ripgrep moreutils'
 			;;
 		git-config)
-			echo 'nix_install git delta git-lfs'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr git delta git-lfs'
 			printf '%s\n' 'git config --global diff.lfs.textconv cat'
 			;;
 		nanorc)
-			echo 'nix_install nano nanorc'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr nano nanorc'
 			echo 'include pinned syntax files in ~/.nanorc'
 			;;
 		python-uv)
-			echo 'nix_install python3 uv ruff'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr python3 uv ruff'
 			;;
 		tldr)
-			echo 'nix_install tldr'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr tldr'
 			;;
 		xtradeb)
 			printf '%s\n' 'sudo apt install -y software-properties-common'
 			printf '%s\n' 'sudo add-apt-repository -y ppa:xtradeb/apps'
 			;;
 		omz)
-			echo 'nix_install git zsh oh-my-zsh'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr git zsh oh-my-zsh'
 			echo 'create ~/.zshrc from pinned template only if absent'
 			;;
 		js-node-22)
-			echo 'nix_install nodejs_22 pnpm'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr nodejs_22 pnpm'
 			;;
 		js-node-24)
-			echo 'nix_install nodejs_24 pnpm'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr nodejs_24 pnpm'
 			;;
 		js-bun)
-			echo 'nix_install bun'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr bun'
 			;;
 		golang)
-			echo 'nix_install go'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr go'
 			;;
 		steamcmd)
 			printf '%s\n' 'use local Unix user steam by default'
@@ -420,18 +420,18 @@ preview_topic() {
 			printf '%s\n' 'write /usr/local/bin/steamcmd wrapper that runs steamcmd.sh as <user>'
 			;;
 		minecraft-fabric)
-			echo 'nix_install curl jdk25'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr curl jdk25'
 			printf '%s\n' 'prompt: Minecraft version, install directory'
 			printf '%s\n' 'download latest compatible Fabric server jar; write run.sh (-Xmx6G)'
 			;;
 		minecraft-neoforge)
-			echo 'nix_install curl jdk25'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr curl jdk25'
 			printf '%s\n' 'prompt: Minecraft version, install directory'
 			printf '%s\n' 'install latest compatible NeoForge; set -Xmx6G; remove run.bat'
 			;;
 		omt)
 			echo 'sudo apt install -y zsh'
-			echo 'nix_install git which tmux'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --attr git which tmux'
 			echo 'git clone --no-checkout --single-branch https://github.com/gpakosz/.tmux.git'
 			echo 'git -C ~/.tmux checkout 58a3dcc0d718ec0fa1c0d5a2fddd640a1ad7a5b7'
 			;;
@@ -600,7 +600,7 @@ fi
 if [ "$NEEDS_NIX" = true ]; then
 	if [ "$DRY_RUN" = true ]; then
 		say_info 'Preview Nix setup (pinned installer and Nixpkgs)'
-		echo 'source shared init.d/_nix.sh; ensure_nix'
+		echo '. init.d/_nix.sh'
 	else
 		if [ -z "${INIT_NIX_HELPER:-}" ]; then
 			INIT_NIX_HELPER="$(mktemp "${TMPDIR:-/tmp}/init-nix.XXXXXX")"
@@ -609,7 +609,6 @@ if [ "$NEEDS_NIX" = true ]; then
 		fi
 		export INIT_NIX_HELPER
 		. "$INIT_NIX_HELPER"
-		ensure_nix
 	fi
 fi
 

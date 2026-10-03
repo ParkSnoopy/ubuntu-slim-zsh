@@ -2,4 +2,4 @@
 set -euo pipefail
 
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install python3 uv ruff
+nix-env --file "$NIXPKGS_URL" --install --attr python3 uv ruff

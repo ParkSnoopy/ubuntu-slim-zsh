@@ -2,7 +2,7 @@
 set -euo pipefail
 
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install nano nanorc
+nix-env --file "$NIXPKGS_URL" --install --attr nano nanorc
 
 INCLUDE="include \"$HOME/.nix-profile/share/*.nanorc\""
 if ! grep -Fxq "$INCLUDE" "$HOME/.nanorc" 2>/dev/null; then

@@ -2,4 +2,4 @@
 set -euo pipefail
 
 . "${INIT_NIX_HELPER:-$(dirname "$0")/_nix.sh}"
-nix_install tldr
+nix-env --file "$NIXPKGS_URL" --install --attr tldr
