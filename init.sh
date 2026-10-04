@@ -38,6 +38,7 @@ AVAILABLE_TOPICS=(
 	js-node-24
 	js-bun
 	golang
+	playit-gg
 	steamcmd
 	minecraft-fabric
 	minecraft-neoforge
@@ -408,6 +409,10 @@ preview_topic() {
 			;;
 		golang)
 			echo 'nix-env --file "$NIXPKGS_URL" --install --attr go'
+			;;
+		playit-gg)
+			echo 'PLAYIT_EXPRESSION: Playit 0.17.1 official Linux binary with pinned SHA-256'
+			echo 'nix-env --file "$NIXPKGS_URL" --install --from-expression "$PLAYIT_EXPRESSION"'
 			;;
 		steamcmd)
 			printf '%s\n' 'use local Unix user steam by default'

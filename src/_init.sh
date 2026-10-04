@@ -19,6 +19,7 @@ _init_sh() {
 		'js-node-24:Install pinned Node.js 24 and pnpm with Nix'
 		'js-bun:Install Bun runtime'
 		'golang:Install Go toolchain'
+		'playit-gg:Install pinned Playit tunnel agent with Nix'
 		'steamcmd:Install SteamCMD dedicated server client'
 		'minecraft-fabric:Install Minecraft Fabric server'
 		'minecraft-neoforge:Install Minecraft NeoForge server'

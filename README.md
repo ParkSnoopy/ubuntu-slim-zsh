@@ -50,6 +50,12 @@ and old tool installations are not automatically migrated. Node topics share one
 profile; the last selected Node variant becomes active. The packaged `.zshenv`
 loads the Nix profile.
 
+The `playit-gg` topic references [mafen/playit-docker](https://github.com/mafen/playit-docker).
+It installs the official Playit 0.17.1 binary as `playit` in the Nix profile,
+using a flat inline derivation with architecture-specific SHA-256 checks for
+amd64 and arm64. Installation does not start the agent or change its existing
+configuration; authentication and tunnel configuration remain agent-owned.
+
 `bash tests/init.sh` exercises topic dispatch, offline previews, scoped help,
 shared helper reuse, and installation failures with isolated command doubles.
 

@@ -51,27 +51,33 @@ preview="$(bash "$ROOT/init.sh" install xtradeb golang --dry-run)"
 [[ "$preview" == *'sudo apt update'*'. init.d/_nix.sh'* ]]
 preview="$(bash "$ROOT/init.sh" install '*' --exclude '*' --dry-run)"
 [[ "$preview" != *'sudo apt update'* && "$preview" != *'. init.d/_nix.sh'* ]]
+preview="$(bash "$ROOT/init.sh" install playit-gg --dry-run)"
+[[ "$preview" == *'Playit 0.17.1'*'nix-env --file "$NIXPKGS_URL" --install --from-expression "$PLAYIT_EXPRESSION"'* ]]
+[[ "$preview" != *'sudo apt update'* ]]
+test ! -e "$LOG"
 
 . "$ROOT/init.d/_nix.sh"
 [[ "$NIXPKGS_URL" =~ /[0-9a-f]{40}\.tar\.gz$ ]]
 rm -f "$LOG"
 
-bash "$ROOT/init.sh" install golang js-node-22 js-node-24 -y
+bash "$ROOT/init.sh" install golang js-node-22 js-node-24 playit-gg -y
 helper_downloads=0
 while IFS= read -r record; do
 	case "$record" in
 		'curl '*/_nix.sh) helper_downloads=$((helper_downloads + 1)) ;;
 		'sudo '*) echo 'Nix-only selection invoked sudo.' >&2; exit 1 ;;
-		'nix-env --file '*) [[ "$record" == "nix-env --file $NIXPKGS_URL --install --attr "* ]] ;;
+		'nix-env --file '*) [[ "$record" == "nix-env --file $NIXPKGS_URL --install --attr "* || "$record" == "nix-env --file $NIXPKGS_URL --install --from-expression "* ]] ;;
 	esac
 done < "$LOG"
 [[ "$helper_downloads" -eq 1 ]]
 
 export FAIL_INSTALL=true
-if bash "$ROOT/init.sh" install golang -y; then
-	echo 'A failed Nix installation reported success.' >&2
-	exit 1
-fi
+for topic in golang playit-gg; do
+	if bash "$ROOT/init.sh" install "$topic" -y; then
+		echo 'A failed Nix installation reported success.' >&2
+		exit 1
+	fi
+done
 
 unset FAIL_INSTALL
 bash "$ROOT/init.d/js-node-24.sh"
