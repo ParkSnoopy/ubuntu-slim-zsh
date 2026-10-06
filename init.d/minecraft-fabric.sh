@@ -8,10 +8,10 @@ INSTALL_DIR="${MINECRAFT_INSTALL_DIR:-/apps/minecraft-fabric}"
 MAX_RAM="${MINECRAFT_MAX_RAM:-6G}"
 
 prompt() {
-	local label="$1" default="$2" value
+	local label="$2" default="$3" value
 	printf '\n%s [%s]: ' "$label" "$default" >&2
 	read -r value || true
-	printf '%s\n' "${value:-$default}"
+	printf -v "$1" '%s' "${value:-$default}"
 }
 
 latest_stable() {
@@ -20,8 +20,8 @@ latest_stable() {
 }
 
 LATEST_MINECRAFT="$(latest_stable "$META/game")"
-MINECRAFT_VERSION="$(prompt 'Minecraft version' "$LATEST_MINECRAFT")"
-INSTALL_DIR="$(prompt 'Install directory' "$INSTALL_DIR")"
+prompt MINECRAFT_VERSION 'Minecraft version' "$LATEST_MINECRAFT"
+prompt INSTALL_DIR 'Install directory' "$INSTALL_DIR"
 LOADER_VERSION="$(latest_stable "$META/loader/$MINECRAFT_VERSION")"
 INSTALLER_VERSION="$(latest_stable "$META/installer")"
 SERVER_JAR_URL="$META/loader/$MINECRAFT_VERSION/$LOADER_VERSION/$INSTALLER_VERSION/server/jar"

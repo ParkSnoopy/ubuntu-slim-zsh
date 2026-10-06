@@ -8,10 +8,10 @@ INSTALL_DIR="${MINECRAFT_INSTALL_DIR:-/apps/minecraft-neoforge}"
 MAX_RAM="${MINECRAFT_MAX_RAM:-6G}"
 
 prompt() {
-	local label="$1" default="$2" value
+	local label="$2" default="$3" value
 	printf '\n%s [%s]: ' "$label" "$default" >&2
 	read -r value || true
-	printf '%s\n' "${value:-$default}"
+	printf -v "$1" '%s' "${value:-$default}"
 }
 
 METADATA="$(curl --proto '=https' --tlsv1.2 -fsSL "$MAVEN/maven-metadata.xml")"
@@ -26,8 +26,8 @@ else
 	LATEST_MINECRAFT="1.$LATEST_MAJOR.$LATEST_MINOR"
 fi
 
-MINECRAFT_VERSION="$(prompt 'Minecraft version' "$LATEST_MINECRAFT")"
-INSTALL_DIR="$(prompt 'Install directory' "$INSTALL_DIR")"
+prompt MINECRAFT_VERSION 'Minecraft version' "$LATEST_MINECRAFT"
+prompt INSTALL_DIR 'Install directory' "$INSTALL_DIR"
 VERSION_PREFIX="${MINECRAFT_VERSION#1.}"
 NEOFORGE_VERSION="$(printf '%s\n' "$METADATA" |
 	sed -n 's/.*<version>\([^<]*\)<\/version>.*/\1/p' |

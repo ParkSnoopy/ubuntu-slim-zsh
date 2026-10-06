@@ -82,6 +82,50 @@ done
 unset FAIL_INSTALL
 bash "$ROOT/init.d/js-node-24.sh"
 
+(
+	# Terminal output from read must never become a version or directory value.
+	read() { printf '\033[?2004h\033[?2004l'; builtin read "$@"; }
+	sudo() { [ "$1" = install ]; "$@"; }
+	curl() {
+		local url= output=
+		while [ "$#" -gt 0 ]; do
+			case "$1" in
+				-o) output="$2"; shift 2 ;;
+				https://*) url="$1"; shift ;;
+				*) shift ;;
+			esac
+		done
+		echo "$url" >> "$LOG"
+		case "$url" in
+			*/game) echo $'[{\n"version": "26.3",\n"stable": true\n}]' ;;
+			*/loader/26.3|*/loader/1.21.1|*/installer)
+				echo $'[{\n"version": "1.0.0",\n"stable": true\n}]' ;;
+			*/maven-metadata.xml)
+				echo $'<version>21.1.1</version>\n<version>26.3.0.1</version>' ;;
+			*/server/jar|*/neoforge-*-installer.jar) touch "$output" ;;
+			*) echo "Unexpected download: $url" >&2; return 1 ;;
+		esac
+	}
+	java() { touch run.sh run.bat user_jvm_args.txt; }
+	export -f read sudo curl java
+	export INIT_NIX_HELPER="$ROOT/init.d/_nix.sh"
+	for topic in minecraft-fabric minecraft-neoforge; do
+		for version in '' 1.21.1; do
+			export MINECRAFT_INSTALL_DIR="$TEST_DIR/$topic/default"
+			directory="$TEST_DIR/$topic/custom path"
+			if [ -z "$version" ]; then directory="$MINECRAFT_INSTALL_DIR"; fi
+			printf '%s\n%s\n' "$version" "${version:+$directory}" | bash "$ROOT/init.d/$topic.sh"
+			test -f "$directory/run.sh"
+			test ! -e "$directory/run.bat"
+			if [ "$topic" = minecraft-fabric ]; then
+				test -f "$directory/fabric-server-launch.jar"
+			else
+				[[ "$(< "$directory/user_jvm_args.txt")" == '-Xmx6G' ]]
+			fi
+		done
+	done
+)
+
 if command -v zsh >/dev/null; then
 	mkdir -p "$HOME/.nix-profile/bin"
 	NIX_CONFIG='sandbox = false' zsh -e -c '
