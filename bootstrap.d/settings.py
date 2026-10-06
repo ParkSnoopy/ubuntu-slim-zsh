@@ -3,7 +3,7 @@
 CURRENT_COMMIT_HASH = "b1ec88e"
 DEFAULT_TOPICS = ("unminimize", "apt-https", "packages", "oh-my-zsh")
 PRIORITY_TOPICS = ("unminimize", "apt-https", "packages")
-PYTHON_VERSION = "3.12"
+PYTHON_VERSION = "3.14"
 NIXPKGS_URL = "https://github.com/NixOS/nixpkgs/archive/774debe7a0d1b496e35677ad955a1011c6ff74f3.tar.gz"
 NIX_INSTALLER_URL = "https://releases.nixos.org/nix/nix-2.24.14/install"
 NIX_INSTALLER_SHA256 = (
