@@ -32,6 +32,7 @@ class UpdateTests(BootstrapCase):
             self_update()
         self.assertTrue(target.stat().st_mode & stat.S_IXUSR)
         self.assertEqual(config.read_text(), "old config\n")
+        self.assertIn(f"Update {config}? [y/N]: ", self.output.getvalue())
         completed = subprocess.run(
             [sys.executable, str(target), "--list"],
             check=True,

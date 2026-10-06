@@ -10,7 +10,8 @@ def emit(message="", *, error=False, end="\n"):
 
 
 def prompt(label, default):
-    emit(f"\n{label} [{default}]: ", error=True, end="")
+    choices = "y/N" if default == "N" else default
+    emit(f"\n{label} [{choices}]: ", error=True, end="")
     return sys.stdin.readline().strip() or default
 
 

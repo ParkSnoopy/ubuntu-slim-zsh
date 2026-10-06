@@ -150,7 +150,9 @@ class CoreTests(BootstrapCase):
         self.assertEqual(self.commands[0][-3:], expected)
 
     def test_cancellation_and_failure_propagation(self):
-        self.assertEqual(self.execute(INSTALL, GIT_TOPIC, input_text="n\n"), 0)
+        for answers in ("n\n", "\n", ""):
+            self.assertEqual(self.execute(INSTALL, GIT_TOPIC, input_text=answers), 0)
+        self.assertIn("Proceed? [y/N]: ", self.output.getvalue())
         self.assertEqual(self.commands, [])
         self.failure = partial(is_program, program="nix-env")
         with self.assertRaises(subprocess.CalledProcessError):
