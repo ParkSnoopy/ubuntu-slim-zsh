@@ -59,10 +59,12 @@ Docker or daemons configured with `userns-remap`.
 
 ## Installer structure
 
-Each topic has its own module and class with its name and description.
+Each topic has its own module and class with its name and description under
+[`bootstrap.d/topics/`](bootstrap.d/topics/). Shared infrastructure, including
+the topic contract, stays directly under `bootstrap.d/`.
 [`catalog.py`](bootstrap.d/catalog.py) loads topics in the declared order.
 Public topic identifiers use hyphens; module names use underscores and join
-numeric suffixes, such as `js-node-22` → `js_node22.py`.
+numeric suffixes, such as `js-node-22` → `topics/js_node22.py`.
 
 Every topic inherits the single [`Topic` ABC](bootstrap.d/contract.py).
 Subclasses may define only three synchronous methods with a positional `self`:
@@ -87,10 +89,15 @@ and the registered login shell. Upstream game downloads and SteamCMD updates
 are not immutable, so the complete deployment is not fully reproducible.
 
 [`updater.py`](bootstrap.d/updater.py) downloads and validates the complete
-executable/module bundle before replacing installed source files. It refreshes
-completion and requires confirmation before replacing user `.zshenv`, even
-when the installed source is current. Existing shell settings are preserved
+executable/module bundle, including the nested topics package, before replacing
+installed source files. It refreshes completion and requires confirmation
+before replacing user `.zshenv`, even when the installed source is current.
+Existing shell settings are preserved
 during topic installation.
+
+Legacy flat-layout updaters cannot fetch the nested topics package. Migrating
+those installations requires a full-bundle replacement or a rebuilt image,
+not an update through the legacy client.
 
 ## Development checks
 

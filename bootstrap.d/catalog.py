@@ -12,7 +12,8 @@ def load_topics():
     catalog = {}
     for name in TOPIC_ORDER:
         module_name = name.replace("-", "_")
-        module = import_module(re.sub(r"_(\d+)$", r"\1", module_name))
+        module_name = re.sub(r"_(\d+)$", r"\1", module_name)
+        module = import_module(f"topics.{module_name}")
         topic = module.TOPIC
         if not isinstance(topic, Topic) or topic.name != name:
             raise TypeError(f"Invalid topic declaration: {name}")

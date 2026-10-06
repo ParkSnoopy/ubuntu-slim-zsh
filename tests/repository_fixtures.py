@@ -23,20 +23,20 @@ def repository_fixture(url):
         return json.dumps({"sha": LATEST_SHA}).encode()
     if "/contents/" in path:
         listing = tuple(
-            {"name": source.name, "type": "file"}
-            for source in (ROOT / "bootstrap.d").glob("*.py")
+            {"name": source.name, "type": "dir" if source.is_dir() else "file"}
+            for source in (ROOT / path.partition("/contents/")[2]).iterdir()
         )
         return json.dumps(listing).encode()
     for suffix, payload in ASSETS.items():
         if path.endswith(suffix):
             return payload
     if "/bootstrap.d/" in path:
-        filename = path.rsplit("/", 1)[-1]
+        filename = path.partition("/bootstrap.d/")[2]
         return (ROOT / "bootstrap.d" / filename).read_bytes()
     raise AssertionError(f"Unexpected repository download: {url}")
 
 
-def invalid_bundle(url):
-    if url.endswith("/coordinator.py"):
+def invalid_bundle(url, suffix="/coordinator.py"):
+    if url.endswith(suffix):
         return b"invalid syntax !"
     return repository_fixture(url)

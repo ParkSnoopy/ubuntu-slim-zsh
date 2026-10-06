@@ -53,7 +53,7 @@ class BootstrapCase(unittest.TestCase):
             patch("subprocess.run", partial(command_fixture, case=self)),
             patch("network.fetch", partial(fetch_fixture, requests=self.requests)),
             patch(
-                "minecraft_neoforge.fetch",
+                "topics.minecraft_neoforge.fetch",
                 partial(fetch_fixture, requests=self.requests),
             ),
             patch(

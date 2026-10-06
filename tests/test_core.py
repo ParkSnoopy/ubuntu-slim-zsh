@@ -31,6 +31,12 @@ class CoreTests(BootstrapCase):
         self.assertEqual(Topic.__abstractmethods__, METHODS)
         self.assertTrue(
             all(
+                type(topic).__module__.startswith("topics.")
+                for topic in TOPICS.values()
+            )
+        )
+        self.assertTrue(
+            all(
                 isinstance(topic, Topic) and topic.description
                 for topic in TOPICS.values()
             )

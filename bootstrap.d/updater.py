@@ -34,9 +34,9 @@ def upstream():
     return repository, commit, base
 
 
-def module_names(repository, commit):
+def module_names(repository, commit, directory=MODULE_DIRECTORY):
     listing = fetch_json(
-        f"https://api.github.com/repos/{repository}/contents/{MODULE_DIRECTORY}?ref={commit}"
+        f"https://api.github.com/repos/{repository}/contents/{directory}?ref={commit}"
     )
     names = tuple(
         entry["name"]
@@ -44,11 +44,12 @@ def module_names(repository, commit):
         if entry["type"] == "file" and entry["name"].endswith(".py")
     )
     if not names or any(
-        not re.fullmatch(r"[a-z][a-z0-9_]*\.py", name) for name in names
+        not re.fullmatch(r"(?:[a-z][a-z0-9_]*|__init__)\.py", name) for name in names
     ):
         raise ValueError("Invalid bootstrap module listing.")
-    if "settings.py" not in names:
-        raise ValueError("Bootstrap module listing has no settings.py.")
+    required = "settings.py" if directory == MODULE_DIRECTORY else "__init__.py"
+    if required not in names:
+        raise ValueError(f"Bootstrap module listing has no {required}.")
     return names
 
 
@@ -66,10 +67,9 @@ def stamp_commit(payload, commit):
 
 def download_bundle(repository, commit, base):
     sources = {SCRIPT_NAME: fetch(f"{base}/{SCRIPT_NAME}")}
-    for name in module_names(repository, commit):
-        sources[f"{MODULE_DIRECTORY}/{name}"] = fetch(
-            f"{base}/{MODULE_DIRECTORY}/{name}"
-        )
+    for directory in (MODULE_DIRECTORY, f"{MODULE_DIRECTORY}/topics"):
+        for name in module_names(repository, commit, directory):
+            sources[f"{directory}/{name}"] = fetch(f"{base}/{directory}/{name}")
     sources[f"{MODULE_DIRECTORY}/settings.py"] = stamp_commit(
         sources[f"{MODULE_DIRECTORY}/settings.py"], commit
     )
@@ -83,9 +83,11 @@ def install_bundle(target, sources):
     directory.mkdir(parents=True, exist_ok=True)
     for filename, payload in sources.items():
         if filename != SCRIPT_NAME:
-            save(target.parent / filename, payload)
-    for previous in directory.glob("*.py"):
-        if f"{MODULE_DIRECTORY}/{previous.name}" not in sources:
+            destination = target.parent / filename
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            save(destination, payload)
+    for previous in directory.rglob("*.py"):
+        if previous.relative_to(target.parent).as_posix() not in sources:
             previous.unlink()
     save(target, sources[SCRIPT_NAME], EXECUTABLE_MODE)
 

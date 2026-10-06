@@ -27,7 +27,7 @@ class LiveTests(BootstrapCase):
     )
     def test_fabric_and_installer_checksum(self):
         with (
-            patch("minecraft_fabric.run", local_directory),
+            patch("topics.minecraft_fabric.run", local_directory),
             patch("sys.stdin", io.StringIO("\n\n")),
             contextlib.redirect_stderr(self.output),
         ):

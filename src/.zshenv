@@ -1,16 +1,5 @@
 # Private API Keys
 
-# uv
-#export UV_LINK_MODE="copy"
-
-# Flutter
-#export PATH="$HOME/.flutter/bin:$PATH"
-#export CHROME_EXECUTABLE="microsoft-edge"
-
-# Android SDK
-#export ANDROID_HOME="$HOME/.android-tools"
-#export ANDROID_SDK_ROOT="$ANDROID_HOME"
-#export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 
 # Nix tools are installed in the current user's profile.
 if [ -r "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
@@ -26,6 +15,18 @@ build-users-group ="
 	fi
 fi
 
+# uv
+#export UV_LINK_MODE="copy"
+
+# Flutter
+#export PATH="$HOME/.flutter/bin:$PATH"
+#export CHROME_EXECUTABLE="microsoft-edge"
+
+# Android SDK
+#export ANDROID_HOME="$HOME/.android-tools"
+#export ANDROID_SDK_ROOT="$ANDROID_HOME"
+#export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+
 # Rust
 #source "$HOME/.cargo/env"
 
@@ -37,7 +38,7 @@ fi
 #export WAYLAND_DISPLAY="wayland-0"
 
 # Environment
-export TZ="Asia/Shanghai"
+#export TZ="Asia/Shanghai"
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 

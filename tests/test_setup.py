@@ -56,7 +56,7 @@ class SetupTests(BootstrapCase):
 
     def test_steam_root_guard_precedes_mutation(self):
         with (
-            patch("steamcmd.run") as invoked,
+            patch("topics.steamcmd.run") as invoked,
             patch.dict(os.environ, {"STEAM_LOCAL_USER": "root"}),
         ):
             with self.assertRaisesRegex(ValueError, "unprivileged"):
@@ -64,7 +64,7 @@ class SetupTests(BootstrapCase):
             invoked.assert_not_called()
         root_account = SimpleNamespace(pw_uid=0)
         with (
-            patch("steamcmd.run") as invoked,
+            patch("topics.steamcmd.run") as invoked,
             patch("pwd.getpwnam", return_value=root_account),
         ):
             with self.assertRaisesRegex(ValueError, "UID 0"):
