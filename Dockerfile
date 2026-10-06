@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-COPY --from=ghcr.io/astral-sh/uv:0.12.0 /uv /uvx /usr/local/bin/
+COPY --from=ghcr.io/astral-sh/uv:0.12.0 /uv /usr/local/bin/
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV UV_PYTHON_INSTALL_DIR=/opt/uv/python
