@@ -44,25 +44,14 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      # Build both variants locally and publish only after runtime checks.
-      - name: Build root Docker image
+      # Build locally and publish only after runtime checks.
+      - name: Build Docker image
         uses: docker/build-push-action@v7
         with:
           context: .
-          target: root
           load: true
           push: false
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.DATE_TAG }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build nonroot Docker image
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          target: nonroot
-          load: true
-          push: false
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.DATE_TAG }}-nonroot
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Verify image defaults and Python
@@ -71,40 +60,13 @@ jobs:
         run: |
           set -euo pipefail
           ROOT_IMAGE="$REGISTRY/$IMAGE_NAME:$DATE_TAG"
-          NONROOT_IMAGE="$ROOT_IMAGE-nonroot"
           test "$(docker run --rm --network=none --entrypoint id "$ROOT_IMAGE" -u)" = 0
-          test "$(docker run --rm --network=none --entrypoint id "$NONROOT_IMAGE" -un)" = ubuntu
-          test "$(docker run --rm --network=none --entrypoint id "$NONROOT_IMAGE" -u)" = 1000
-          test "$(docker run --rm --network=none --entrypoint id "$NONROOT_IMAGE" -g)" = 1000
-          for IMAGE in "$ROOT_IMAGE" "$NONROOT_IMAGE"; do
-            docker run --rm --network=none "$IMAGE" -ec \
-              'python3 -c "import sys; assert sys.version_info[:2] == (3, 14)"; ~/bootstrap --list; touch "$HOME/.write-check"'
-          done
+          docker run --rm --network=none "$ROOT_IMAGE" -ec \
+            'python3 -c "import sys; assert sys.version_info[:2] == (3, 14)"; ~/bootstrap --list; touch "$HOME/.write-check"'
 
-      - name: Verify rootless bind-mount ownership
-        env:
-          DATE_TAG: ${{ steps.tag.outputs.DATE_TAG }}
-        run: |
-          set -euo pipefail
-          if ! command -v podman >/dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y podman
-          fi
-          WORKSPACE=$(mktemp -d "$RUNNER_TEMP/nonroot-ownership.XXXXXX")
-          trap 'rm -r "$WORKSPACE"' EXIT
-          docker save "$REGISTRY/$IMAGE_NAME:$DATE_TAG-nonroot" | podman load
-          podman run --rm --network=none --cgroups=disabled \
-            --userns=keep-id:uid=1000,gid=1000 --user=ubuntu:ubuntu \
-            --volume "$WORKSPACE:/workspace:Z" --workdir /workspace \
-            "$REGISTRY/$IMAGE_NAME:$DATE_TAG-nonroot" -ec \
-            'test "$(id -un)" = ubuntu; touch /workspace/ownership-check'
-          test "$(stat -c %u "$WORKSPACE/ownership-check")" = "$(id -u)"
-          test "$(stat -c %g "$WORKSPACE/ownership-check")" = "$(id -g)"
-
-      - name: Push verified images
+      - name: Push verified image
         env:
           DATE_TAG: ${{ steps.tag.outputs.DATE_TAG }}
         run: |
           set -euo pipefail
           docker push "$REGISTRY/$IMAGE_NAME:$DATE_TAG"
-          docker push "$REGISTRY/$IMAGE_NAME:$DATE_TAG-nonroot"

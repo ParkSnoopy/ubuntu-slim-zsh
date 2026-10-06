@@ -6,56 +6,11 @@ modules under [`bootstrap.d/`](bootstrap.d/). Runtime Python comes from uv;
 the installer uses only the standard library. The project and image use Python
 3.14; Ruff, wemake-python-styleguide, and integration checks support this version.
 
-## Image tags and bind-mount ownership
+## Image tag
 
-The publication workflow builds two tags from the same source and Seoul date:
-`{YYYYMMDD}` retains the root default; `{YYYYMMDD}-nonroot` defaults to
-`ubuntu:ubuntu` (container UID/GID `1000:1000`) with home `/home/ubuntu`.
-The nonroot image keeps writable bootstrap files and uv-managed installs in
-that home. Both image variants share the system Python interpreter.
-
-### Rootless Podman: keep the invoking user's ownership
-
-Replace `YYYYMMDD` with a published image date. Run Podman as your regular
-host user, without `sudo`:
-
-```bash
-podman run --rm -it \
-  --userns=keep-id:uid=1000,gid=1000 --user=ubuntu:ubuntu \
-  --volume "$PWD:/workspace:Z" --workdir /workspace \
-  ghcr.io/parksnoopy/ubuntu-slim-zsh:YYYYMMDD-nonroot
-```
-
-This maps the invoking host user's UID and primary GID to the image's named
-`ubuntu` account. New files that `ubuntu` writes in `/workspace` retain the
-invoking user's numeric owner/group on the host, even when the host IDs are
-not `1000:1000`. `:Z` handles private SELinux labeling, not file ownership.
-Do not add `:U`: it recursively changes bind-mount ownership. Avoid `sudo`
-commands that write into the bind mount or running the workload as another
-container user. The mapping does not repair files created by older containers.
-
-Setting `USER ubuntu` alone is insufficient for rootless engines: their
-default user namespaces can map UID 1000 to subordinate host IDs such as
-`527999:527999`. Plain `--userns=keep-id` also changes the process identity;
-the explicit mapped IDs and `--user` above preserve the named Ubuntu account.
-See the [Podman user-namespace reference](https://docs.podman.io/en/latest/markdown/podman-run.1.html#userns-mode).
-
-### Rootful Docker: match numeric IDs for workspace writes
-
-With a rootful Docker daemon and no user-namespace remapping:
-
-```bash
-docker run --rm -it \
-  --user "$(id -u):$(id -g)" \
-  --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
-  ghcr.io/parksnoopy/ubuntu-slim-zsh:YYYYMMDD-nonroot
-```
-
-This overrides the image's named user with the host's numeric IDs. If those
-IDs differ from `1000:1000`, access to Ubuntu-owned home files and named-account
-operations is not guaranteed; use the Podman recipe for the full Ubuntu
-environment. This Docker recipe is not an ownership guarantee for rootless
-Docker or daemons configured with `userns-remap`.
+The publication workflow builds the `{YYYYMMDD}` tag using the Seoul date.
+The image defaults to root, with bootstrap files under `/root` and the
+uv-managed system interpreter under `/opt/uv/python`.
 
 ## Installer structure
 
