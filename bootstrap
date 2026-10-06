@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Run the Python container bootstrap."""
+
+import sys
+from pathlib import Path
+
+MODULE_DIRECTORY = Path(__file__).resolve().with_name("bootstrap.d")
+INTERRUPTED = 130
+sys.path.insert(0, str(MODULE_DIRECTORY))
+from console import emit
+from coordinator import OPERATION_ERRORS, main
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except OPERATION_ERRORS as error:
+        emit(f"✗ {error}", error=True)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        emit("\nCancelled.", error=True)
+        sys.exit(INTERRUPTED)

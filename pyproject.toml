@@ -1,0 +1,18 @@
+[project]
+name = "ubuntu-slim-zsh"
+version = "0.1.0"
+readme = "README.md"
+authors = [
+    { name = "ParkSnoopy", email = "117149837+ParkSnoopy@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.10",
+    "wemake-python-styleguide>=1.8.1",
+]

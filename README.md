@@ -1,120 +1,60 @@
 # Ubuntu, with zsh
 
-Enjoy `zsh`'s powerful completion within docker container  
-By default, docker `ENTRYPOINT` and `CMD` is hard to override,  
-you had to run `zsh` over `bash`, which is exhausting sometimes.  
+Ubuntu 24.04 container with zsh as the default shell and dumb-init as PID 1.
+The image packages the executable [`bootstrap`](bootstrap) and its Python
+modules under [`bootstrap.d/`](bootstrap.d/). Runtime Python comes from uv;
+the installer uses only the standard library.
 
-# Use
+## Installer structure
 
-## Pull the image
-```bash
-docker pull ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
-```
-## Run the container
+Each topic has its own module and class with its name and description.
+[`catalog.py`](bootstrap.d/catalog.py) loads topics in the declared order.
+Public topic identifiers use hyphens; module names use underscores and join
+numeric suffixes, such as `js-node-22` → `js_node22.py`.
 
-```bash
-docker run -it -u root -w /root ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
-```
+Every topic inherits the single [`Topic` ABC](bootstrap.d/contract.py).
+Subclasses may define only three synchronous methods with a positional `self`:
+`packages()`, `install()`, and `preview()`. Additional methods, extra parameters,
+and static or class methods are rejected when the class is defined.
+Package declarations are Nix attributes; previews must not prompt, write,
+or access the network. Metadata stays on the topic class.
 
-Entrypoint as `tmux` instead of `zsh`
+[`coordinator.py`](bootstrap.d/coordinator.py) applies exclusions and gathers
+packages before any topic action. [`nix.py`](bootstrap.d/nix.py) deduplicates
+packages, keeps the last selected Node variant, verifies Nix bootstrap when
+needed, and issues one `nix-env --install` transaction. Playit joins the same
+transaction through a combined expression. Empty Nix selections skip setup.
+APT refresh and OS-owned topic actions follow the Nix phase.
 
-```bash
-docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/tmux", "-2u"]' ghcr.io/parksnoopy/ubuntu-slim-zsh:latest
-```
+Nixpkgs and installer pins live in [`settings.py`](bootstrap.d/settings.py).
+The official Playit 0.17.1 derivation retains amd64 and arm64 release hashes;
+see [mafen/playit-docker](https://github.com/mafen/playit-docker) for context.
+Installation does not start Playit. Python remains uv-managed. APT retains
+Ubuntu prerequisites, source configuration, native SteamCMD dependencies,
+and the registered login shell. Upstream game downloads and SteamCMD updates
+are not immutable, so the complete deployment is not fully reproducible.
 
-## Run initialization script
+[`updater.py`](bootstrap.d/updater.py) downloads and validates the complete
+executable/module bundle before replacing installed source files. It refreshes
+completion and requires confirmation before replacing user `.zshenv`, even
+when the installed source is current. Existing shell settings are preserved
+during topic installation.
 
-> [!NOTE]  
-> [`/root/init.sh`](src/init.sh) is the packaged bootstrap script.  
->   
-> Normally, `zsh` is used with `omz`,  
-> but it makes image unnessasarily heavy.  
->   
-> So initial setup is split into install topics under [`init.d/`](init.d/)  
-> and run by the curl-fetched master script.  
+## Development checks
 
-Tool topics use the single-user Nix profile at `~/.nix-profile`. The shared
-[`init.d/_nix.sh`](init.d/_nix.sh) pins Nixpkgs to an immutable commit and verifies
-the version-pinned Nix installer before execution. This is a flat setup script,
-without command-wrapper functions. Topic scripts source it locally or through
-the coordinator's `INIT_NIX_HELPER` path, then run
-`nix-env --file "$NIXPKGS_URL" --install --attr ...` directly. Dry-run previews
-show the same commands. No channel update or unpinned NVM, pip, or Bun installer
-is used for these tools.
-
-Ubuntu image prerequisites, `unminimize`, `apt-https`, `xtradeb`, SteamCMD's
-native 32-bit dependencies, and the registered login shell remain APT-managed.
-Minecraft loader downloads and SteamCMD's self-updates remain upstream-managed;
-the complete deployment is not fully reproducible. Existing shell configurations
-and old tool installations are not automatically migrated. Node topics share one
-profile; the last selected Node variant becomes active. The packaged `.zshenv`
-loads the Nix profile.
-
-The `playit-gg` topic references [mafen/playit-docker](https://github.com/mafen/playit-docker).
-It installs the official Playit 0.17.1 binary as `playit` in the Nix profile,
-using a flat inline derivation with architecture-specific SHA-256 checks for
-amd64 and arm64. Installation does not start the agent or change its existing
-configuration; authentication and tunnel configuration remain agent-owned.
-
-`bash tests/init.sh` exercises topic dispatch, offline previews, scoped help,
-shared helper reuse, and installation failures with isolated command doubles.
-
-Default install with unminimize, apt HTTPS support, minimal packages, and omz
+uv owns the project environment and lockfile. Ruff and wemake-python-styleguide
+are development-only dependencies. WPS defaults apply to source and tests;
+`.flake8` excludes generated environments/caches and includes `bootstrap`.
 
 ```bash
-~/init.sh
+uv run --locked ruff check bootstrap bootstrap.d tests
+uv run --locked ruff format --check bootstrap bootstrap.d tests
+uv run flake8 . --select=WPS
+uv run --locked python -m unittest discover -s tests -v
 ```
 
-Preview the default install
-
-```bash
-~/init.sh --dry-run
-```
-
-List available install topics
-
-```bash
-~/init.sh --list
-```
-
-Update the installed init script when a newer git commit is available
-
-```bash
-~/init.sh update
-```
-
-Install only selected topics
-
-```bash
-~/init.sh install omt python-uv
-```
-
-Exclude a topic from the default install
-
-```bash
-~/init.sh --exclude omz
-```
-
-Install SteamCMD and create a `/usr/local/bin/steamcmd` wrapper that runs as the `steam` user
-
-```bash
-~/init.sh install steamcmd
-```
-
-Install a Minecraft Fabric server (prompts for Minecraft version and install directory)
-
-```bash
-~/init.sh install minecraft-fabric
-```
-
-Install a Minecraft NeoForge server (prompts for Minecraft version and install directory)
-
-```bash
-~/init.sh install minecraft-neoforge
-```
-
-Install every available topic without confirmation
-
-```bash
-~/init.sh install '*' -y
-```
+Integration checks cover topic contracts, dispatch, offline previews, the shared
+Nix transaction, failures, prompts, and full-bundle updates. Set
+`BOOTSTRAP_LIVE_TESTS=1` for real Fabric downloads and installer checksum checks.
+Those optional tests do not install Nix or start game servers. Container builds
+must separately verify image assembly and its uv-managed interpreter.
