@@ -12,6 +12,23 @@ The publication workflow builds the `{YYYYMMDD}` tag using the Seoul date.
 The image defaults to root, with bootstrap files under `/root` and the
 uv-managed system interpreter under `/opt/uv/python`.
 
+## Compose examples
+
+[`compose-examples/playit-minecraft-fabric.compose.yaml`](compose-examples/playit-minecraft-fabric.compose.yaml)
+defines separate Fabric and Playit services using the same dated image. Each
+service installs its own bootstrap topic and then executes its runtime.
+`IMAGE_TAG` selects a published image; `MINECRAFT_VERSION` pins the game version,
+and `MINECRAFT_MAX_RAM` defaults to `6G`. Minecraft starts only when
+`MINECRAFT_EULA` is explicitly `true` after acceptance of the Minecraft EULA.
+
+Minecraft worlds, mods, and configuration live in `minecraft-data` at `/data`.
+Playit state lives in `playit-state`. These named volumes survive container
+removal and normal Compose teardown; teardown with `--volumes` deletes them.
+Nix packages are installed in each container's disposable filesystem.
+Playit shares Minecraft's network namespace and waits for its TCP health check;
+the tunnel's local target is `127.0.0.1:25565`, without an inbound host port.
+The Playit runtime owns agent registration and tunnel configuration.
+
 ## Installer structure
 
 Each topic has its own module and class with its name and description under

@@ -1,0 +1,66 @@
+name: playit-minecraft-fabric
+
+x-image: &image "ghcr.io/parksnoopy/ubuntu-slim-zsh:${IMAGE_TAG:?Set IMAGE_TAG to a published YYYYMMDD tag}"
+
+services:
+  minecraft:
+    image: *image
+    restart: unless-stopped
+    working_dir: /data
+    stdin_open: true
+    stop_grace_period: 2m
+    environment:
+      MINECRAFT_INSTALL_DIR: /data
+      MINECRAFT_VERSION: "${MINECRAFT_VERSION:?Set an explicit Minecraft version}"
+      MINECRAFT_MAX_RAM: "${MINECRAFT_MAX_RAM:-6G}"
+      MINECRAFT_EULA: "${MINECRAFT_EULA:?Set true only after accepting https://www.minecraft.net/en-us/eula}"
+    command:
+      - -ec
+      - |
+        set -o pipefail
+        if [[ "$${MINECRAFT_EULA}" != true ]]; then
+          echo 'Minecraft EULA acceptance is required before server startup.' >&2
+          exit 1
+        fi
+        echo "$${MINECRAFT_VERSION}" | /root/bootstrap install minecraft-fabric -y
+        . /root/.zshenv
+        echo 'eula=true' > /data/eula.txt
+        exec /data/run.sh
+    volumes:
+      - minecraft-data:/data
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - "import socket; socket.create_connection(('127.0.0.1', 25565), timeout=3).close()"
+      interval: 30s
+      timeout: 5s
+      start_period: 10m
+      retries: 5
+
+  playit:
+    image: *image
+    restart: unless-stopped
+    # The tunnel's local destination is 127.0.0.1:25565; no host port is published.
+    network_mode: service:minecraft
+    depends_on:
+      minecraft:
+        condition: service_healthy
+        restart: true
+    environment:
+      PLAYIT_SECRET_PATH: /var/lib/playit/playit.toml
+    command:
+      - -ec
+      - |
+        umask 077
+        /root/bootstrap install playit-gg -y </dev/null
+        . /root/.zshenv
+        exec playit --stdout --platform_docker start
+    volumes:
+      - playit-state:/var/lib/playit
+
+# Named volumes survive container removal and compose down, but not down --volumes.
+volumes:
+  minecraft-data:
+  playit-state:
