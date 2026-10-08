@@ -1,3 +1,7 @@
+# Design Failure, Getting too Fat
+
+---
+
 # Ubuntu, with zsh
 
 Ubuntu 24.04 container with zsh as the default shell and dumb-init as PID 1.
