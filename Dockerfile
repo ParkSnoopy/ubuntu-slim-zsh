@@ -13,8 +13,8 @@ RUN \
 	rm -rf /var/lib/apt/lists/*				&&\
 	echo 'ubuntu  ALL=(ALL:ALL) NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo
 
-COPY src/init.sh /root/init.sh
+COPY src/init.bash /root/init.bash
 COPY src/.zshenv /root/.zshenv
-COPY src/_init.sh /usr/local/share/zsh/site-functions/_init.sh
+COPY src/_init.bash /usr/local/share/zsh/site-functions/_init.bash
 
 ENTRYPOINT ["/usr/bin/dumb-init", "/usr/bin/zsh"]

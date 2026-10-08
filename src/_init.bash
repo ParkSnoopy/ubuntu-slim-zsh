@@ -1,6 +1,6 @@
-#compdef init.sh
+#compdef init.bash
 
-_init_sh() {
+_init_bash() {
 	local curcontext="$curcontext" state line
 	typeset -A opt_args
 
@@ -14,7 +14,7 @@ _init_sh() {
 		'python-uv:Install Python 3, uv, and ruff'
 		'tldr:Install tldr client'
 		'xtradeb:Add xtradeb/apps PPA repository'
-		'omz:Install Oh My Zsh'
+		'oh-my-zsh:Install Oh My Zsh'
 		'js-node-22:Install Node.js 22 via NVM and enable pnpm'
 		'js-node-24:Install Node.js 24 via NVM and enable pnpm'
 		'js-bun:Install Bun runtime'
@@ -22,14 +22,14 @@ _init_sh() {
 		'steamcmd:Install SteamCMD dedicated server client'
 		'minecraft-fabric:Install Minecraft Fabric server'
 		'minecraft-neoforge:Install Minecraft NeoForge server'
-		'omt:Install Oh My Tmux configuration'
+		'oh-my-tmux:Install Oh My Tmux configuration'
 		'\*:All available topics'
 	)
 
 	local -a subcommands
 	subcommands=(
 		'install:Install only selected topics'
-		'update:Compare commit hash and replace ~/init.sh if newer'
+		'update:Compare commit hash and replace ~/init.bash if newer'
 	)
 
 	local -a common_opts
@@ -56,4 +56,4 @@ _init_sh() {
 	esac
 }
 
-_init_sh "$@"
+_init_bash "$@"

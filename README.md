@@ -25,91 +25,97 @@ docker run -it -u root -w /root --entrypoint '["/usr/bin/dumb-init", "/usr/bin/t
 ## Run initialization script
 
 > [!NOTE]  
-> [`/root/init.sh`](src/init.sh) is the packaged bootstrap script.  
+> [`/root/init.bash`](src/init.bash) is the packaged bootstrap script.  
 >   
-> Normally, `zsh` is used with `omz`,  
+> Normally, `zsh` is used with `oh-my-zsh`,  
 > but it makes image unnessasarily heavy.  
 >   
 > So initial setup is split into install topics under [`init.d/`](init.d/)  
 > and run by the curl-fetched master script.  
 
-Default install with unminimize, apt HTTPS support, minimal packages, and omz
+Default install with unminimize, apt HTTPS support, minimal packages, and oh-my-zsh
 
 ```bash
-~/init.sh
+~/init.bash
 ```
 
 Preview the default install
 
 ```bash
-~/init.sh --dry-run
+~/init.bash --dry-run
 ```
 
 List available install topics
 
 ```bash
-~/init.sh --list
+~/init.bash --list
 ```
 
 Update the installed init script when a newer git commit is available
 
 ```bash
-~/init.sh update
+~/init.bash update
 ```
 
 Install only selected topics
 
 ```bash
-~/init.sh install omt python-uv
+~/init.bash install oh-my-tmux python-uv
 ```
 
 Exclude a topic from the default install
 
 ```bash
-~/init.sh --exclude omz
+~/init.bash --exclude oh-my-zsh
 ```
 
 Install SteamCMD and create a `/usr/local/bin/steamcmd` wrapper that runs as the `steam` user
 
 ```bash
-~/init.sh install steamcmd
+~/init.bash install steamcmd
 ```
 
 Install a Minecraft Fabric server (prompts for Minecraft version and install directory)
 
 ```bash
-~/init.sh install minecraft-fabric
+~/init.bash install minecraft-fabric
 ```
 
 Install a Minecraft NeoForge server (prompts for Minecraft version and install directory)
 
 ```bash
-~/init.sh install minecraft-neoforge
+~/init.bash install minecraft-neoforge
 ```
 
 Install every available topic without confirmation
 
 ```bash
-~/init.sh install '*' -y
+~/init.bash install '*' -y
 ```
 
 ## Installer structure
 
-`init.sh` parses arguments, applies defaults and exclusions, and orders the
+`init.bash` parses arguments, applies defaults and exclusions, and orders the
 selected topics before either previewing or installing them. Dry runs return
 before confirmation, downloads, or package changes. Shared membership and
 append helpers handle both selection and exclusion without recursive dispatch.
 Topic failures remain aggregated after the installation loop.
 
-`src/init.sh` is the image's thin bootstrap. Topic scripts remain under
+`src/init.bash` is the image's thin bootstrap. Topic scripts remain under
 `init.d/` and use direct command sequences. Upstream shell installers are
 downloaded completely before execution, with temporary files removed on exit.
 Self-update validates the downloaded Bash script before replacement and still
 requires confirmation before replacing `.zshenv`.
 
+The packaged completion is `src/_init.bash`, registered for `init.bash` with
+the `oh-my-zsh` and `oh-my-tmux` topic names. Fabric's generated launcher is
+`run.bash`; upstream script filenames are unchanged. Existing installations
+require a rebuilt image or replacement of the bootstrap entry point because
+older self-update URLs do not follow these renames.
+
 ## Development checks
 
 `bash tests/init.bash` exercises the CLI with controlled download and package
 command fixtures in a temporary home; it does not install packages or contact
-upstream services. Run `bash -n` and `shellharden --check` on `init.sh`,
-`src/init.sh`, each `init.d/*.sh` script, and `tests/init.bash` individually.
+upstream services. Run `bash -n` and `shellharden --check` on `init.bash`,
+`src/init.bash`, each `init.d/*.bash` script, and `tests/init.bash` individually.

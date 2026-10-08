@@ -33,7 +33,7 @@ AVAILABLE_TOPICS=(
 	python-uv
 	tldr
 	xtradeb
-	omz
+	oh-my-zsh
 	js-node-22
 	js-node-24
 	js-bun
@@ -41,10 +41,10 @@ AVAILABLE_TOPICS=(
 	steamcmd
 	minecraft-fabric
 	minecraft-neoforge
-	omt
+	oh-my-tmux
 )
 
-DEFAULT_TOPICS=(unminimize apt-https packages omz)
+DEFAULT_TOPICS=(unminimize apt-https packages oh-my-zsh)
 SELECTED_TOPICS=()
 EXCLUDED_TOPICS=()
 INSTALL_COMMAND=false
@@ -56,12 +56,12 @@ usage() {
 ${BOLD}${CYAN}ubuntu-slim-zsh init${RESET} ${DIM}(${CURRENT_COMMIT_HASH})${RESET}
 
 ${BOLD}Usage${RESET}
-  init.sh [options]
-  init.sh install topic ... [options]
+  init.bash [options]
+  init.bash install topic ... [options]
 
 ${BOLD}Commands${RESET}
   install topic ...              install only selected topics; use '*' for all
-  update                         compare commit hash and replace ~/init.sh if newer
+  update                         compare commit hash and replace ~/init.bash if newer
 
 ${BOLD}Selection${RESET}
   --exclude topic ...            remove topics after selection
@@ -73,16 +73,16 @@ ${BOLD}Run control${RESET}
   -h, --help                     show this help
 
 ${BOLD}Defaults${RESET}
-  unminimize → apt-https → packages → omz
+  unminimize → apt-https → packages → oh-my-zsh
 
 ${BOLD}Topic order${RESET}
   unminimize → apt-https → packages → rest
 
 ${BOLD}Examples${RESET}
-  init.sh install git-config js-bun
-  init.sh install steamcmd
-  init.sh install '*' --exclude omz
-  init.sh update
+  init.bash install git-config js-bun
+  init.bash install steamcmd
+  init.bash install '*' --exclude oh-my-zsh
+  init.bash update
 
 ${BOLD}Topics${RESET}
 EOF
@@ -94,10 +94,10 @@ EOF
 
 usage_install() {
 	cat <<EOF
-${BOLD}${CYAN}init.sh install${RESET}
+${BOLD}${CYAN}init.bash install${RESET}
 
 ${BOLD}Usage${RESET}
-  init.sh install topic ... [options]
+  init.bash install topic ... [options]
 
 ${BOLD}Options${RESET}
   --exclude topic ...            remove topics after selection
@@ -111,12 +111,12 @@ EOF
 
 usage_update() {
 	cat <<EOF
-${BOLD}${CYAN}init.sh update${RESET}
+${BOLD}${CYAN}init.bash update${RESET}
 
 ${BOLD}Usage${RESET}
-  init.sh update
+  init.bash update
 
-Update ~/init.sh when a newer commit exists. Confirm before updating ~/.zshenv.
+Update ~/init.bash when a newer commit exists. Confirm before updating ~/.zshenv.
 EOF
 }
 
@@ -146,7 +146,7 @@ self_update() (
 	local reply
 	local target_script
 
-	target_script="${INIT_TARGET_SCRIPT:-$HOME/init.sh}"
+	target_script="${INIT_TARGET_SCRIPT:-$HOME/init.bash}"
 	next_script=
 	next_zshenv=
 	trap 'rm -f "$next_script" "$next_zshenv"' EXIT
@@ -168,13 +168,13 @@ self_update() (
 	if [ "$latest_short_hash" != "$CURRENT_COMMIT_HASH" ]; then
 		say_info "Updating ${CURRENT_COMMIT_HASH} → ${latest_short_hash}"
 		next_script="$(mktemp "${TMPDIR:-/tmp}/init-update.XXXXXX")"
-		curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/init.sh" -o "$next_script"
+		curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/init.bash" -o "$next_script"
 		chmod +x "$next_script"
 		bash -n "$next_script"
 		sed -i "s/^CURRENT_COMMIT_HASH=\"[0-9a-f]*\"/CURRENT_COMMIT_HASH=\"$latest_short_hash\"/" "$next_script"
 		install -m 755 "$next_script" "$target_script"
 		if [ -d /usr/local/share/zsh/site-functions ] && [ -w /usr/local/share/zsh/site-functions ]; then
-			curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/src/_init.sh" -o /usr/local/share/zsh/site-functions/_init.sh 2>/dev/null || true
+			curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/src/_init.bash" -o /usr/local/share/zsh/site-functions/_init.bash 2>/dev/null || true
 		fi
 		say_success "Updated $target_script to ${latest_short_hash}."
 	fi
@@ -267,7 +267,7 @@ preview_topic() {
 			echo 'sudo apt install -y software-properties-common'
 			echo 'sudo add-apt-repository -y ppa:xtradeb/apps'
 			;;
-		omz)
+		oh-my-zsh)
 			echo 'sudo apt install -y curl git zsh'
 			echo 'curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -o <tmp-installer>'
 			echo 'sh <tmp-installer> --unattended'
@@ -301,14 +301,14 @@ preview_topic() {
 		minecraft-fabric)
 			echo 'prompt: Minecraft version, install directory'
 			echo 'sudo apt install -y curl openjdk-25-jdk'
-			echo 'download latest compatible Fabric server jar; write run.sh (-Xmx6G)'
+			echo 'download latest compatible Fabric server jar; write run.bash (-Xmx6G)'
 			;;
 		minecraft-neoforge)
 			echo 'prompt: Minecraft version, install directory'
 			echo 'sudo apt install -y curl openjdk-25-jdk'
 			echo 'install latest compatible NeoForge; set -Xmx6G; remove run.bat'
 			;;
-		omt)
+		oh-my-tmux)
 			echo 'sudo apt install -y git gnu-which tmux zsh'
 			echo 'git clone --single-branch https://github.com/gpakosz/.tmux.git'
 			;;
@@ -446,7 +446,7 @@ run_topic() {
 
 	topic_script="$(mktemp "${TMPDIR:-/tmp}/init-topic-$topic.XXXXXX")" || return 1
 
-	if ! curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/init.d/$topic.sh" -o "$topic_script"; then
+	if ! curl --proto '=https' --tlsv1.2 -fsSL "$BASE_URL/init.d/$topic.bash" -o "$topic_script"; then
 		rm -f "$topic_script"
 		return 1
 	fi

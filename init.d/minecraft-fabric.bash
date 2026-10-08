@@ -28,10 +28,10 @@ sudo apt install -y curl openjdk-25-jdk
 sudo install -d "$INSTALL_DIR"
 curl --proto '=https' --tlsv1.2 -fsSL "$SERVER_JAR_URL" -o "$INSTALL_DIR/fabric-server-launch.jar"
 
-cat > "$INSTALL_DIR/run.sh" <<EOF
+cat > "$INSTALL_DIR/run.bash" <<EOF
 #!/bin/env bash
 set -euo pipefail
 cd "$INSTALL_DIR"
 exec java -Xmx$MAX_RAM -jar fabric-server-launch.jar nogui
 EOF
-chmod +x "$INSTALL_DIR/run.sh"
+chmod +x "$INSTALL_DIR/run.bash"

@@ -1,8 +1,8 @@
 #!/bin/env bash
 set -euo pipefail
 
-INIT_SCRIPT="${TMPDIR:-/tmp}/init.sh"
-INIT_SCRIPT_URL="https://raw.githubusercontent.com/ParkSnoopy/ubuntu-slim-zsh/refs/heads/main/init.sh"
+INIT_SCRIPT="${TMPDIR:-/tmp}/init.bash"
+INIT_SCRIPT_URL="https://raw.githubusercontent.com/ParkSnoopy/ubuntu-slim-zsh/refs/heads/main/init.bash"
 
 # Use the plain Ubuntu archive mirror from the packaged container init script.
 sudo sed -i \
