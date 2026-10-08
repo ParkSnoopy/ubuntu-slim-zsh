@@ -12,6 +12,14 @@ The publication workflow builds the `{YYYYMMDD}` tag using the Seoul date.
 The image defaults to root, with bootstrap files under `/root` and the
 uv-managed system interpreter under `/opt/uv/python`.
 
+The image sets `NIX_CONFIG` to `sandbox = false` because normal containers lack
+mount privileges required by Nix build sandboxing. Bootstrap uses the verified
+single-user installer as root, without a daemon. Its existing empty
+`build-users-group` override lets root build when `nixbld` is absent; the shell
+preserves the image's sandbox setting. These image defaults do not disable
+sandboxing for native host installations. The upstream installer still emits
+its root-support warning.
+
 ## Compose examples
 
 [`compose-examples/playit-minecraft-fabric.compose.yaml`](compose-examples/playit-minecraft-fabric.compose.yaml)

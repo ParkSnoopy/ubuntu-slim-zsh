@@ -71,6 +71,21 @@ jobs:
           docker run --rm --network=none "$ROOT_IMAGE" -ec \
             'python3 -c "import sys; assert sys.version_info[:2] == (3, 14)"; ~/bootstrap --list; touch "$HOME/.write-check"'
 
+      - name: bash - Verify Root Nix without Mount Privileges
+        env:
+          DATE_TAG: ${{ steps.tag.outputs.DATE_TAG }}
+        run: |
+          set -euo pipefail
+          docker run --rm --cap-drop=SYS_ADMIN "$REGISTRY/$IMAGE_NAME:$DATE_TAG" -ec '
+            set -o pipefail
+            test "$(id -u)" = 0
+            ~/bootstrap install playit-gg -y </dev/null
+            . "$HOME/.zshenv"
+            nix --extra-experimental-features nix-command config show --json |
+              python3 -c "import json, sys; settings = json.load(sys.stdin); assert settings[\"sandbox\"][\"value\"] is False; assert settings[\"build-users-group\"][\"value\"] == str()"
+            playit version
+          '
+
       - name: Push verified image
         env:
           DATE_TAG: ${{ steps.tag.outputs.DATE_TAG }}
